@@ -1,0 +1,253 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CourseDto {
+  id: String!
+  courseName: String!
+  abstract: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  keyLearnings: [String!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type AuthResponse {
+  success: Boolean!
+  message: String
+  token: String
+}
+
+type LessonDto {
+  id: String!
+  lessonName: String!
+  abstract: String
+  courseId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserResponse {
+  id: String!
+  username: String!
+  email: String!
+  phoneNumber: String
+  role: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LessonExplanationResponse {
+  id: String!
+  content: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type EnrollmentResponse {
+  userId: String!
+  courseId: String!
+  enrolledAt: DateTime!
+}
+
+type ProgressResponse {
+  id: String!
+  userId: String!
+  courseId: String!
+  completedLessons: Float!
+  totalLessons: Float!
+  percentage: Float!
+  updatedAt: DateTime!
+}
+
+type SystemPromptResponse {
+  id: String!
+  title: String!
+  content: String!
+  createdAt: DateTime!
+}
+
+type MessageResponse {
+  id: String!
+  content: String!
+  senderType: String!
+  conversationId: String!
+  timestamp: DateTime!
+}
+
+type ConversationResponse {
+  id: String!
+  name: String
+  creatorId: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  getAllCourses: [CourseDto!]!
+  getCourseById(id: String!): CourseDto
+  hello: String!
+  admin: String!
+  getAllLessons: [LessonDto!]!
+  getLessonsByCourseId(id: String!): [LessonDto!]!
+  getLessonById(id: String!): LessonDto
+  users: [UserResponse!]!
+  user(id: String!): UserResponse!
+  lessonExplanation(id: String!): LessonExplanationResponse
+  lessonExplanationByLessonAndUser(lessonId: String!, userId: String!): LessonExplanationResponse
+  getUserEnrollments(userId: String!): [EnrollmentResponse!]!
+  getProgress(progressId: String!): ProgressResponse!
+  systemPrompts: [SystemPromptResponse!]!
+  systemPrompt(id: String!): SystemPromptResponse!
+  myConversations: [ConversationResponse!]!
+  conversation(id: String!): ConversationResponse
+  message(id: String!): MessageResponse
+  messagesByConversation(conversationId: String!): [MessageResponse!]!
+}
+
+type Mutation {
+  createCourse(data: CreateCourseDto!): CourseDto!
+  updateCourse(data: UpdateCourseDto!): CourseDto!
+  deleteCourse(id: String!): CourseDto!
+  register(data: RegisterInput!): AuthResponse!
+  login(data: LoginInput!): AuthResponse!
+  googleLogin(data: GoogleLoginInput!): AuthResponse!
+  logout: Boolean!
+  createLesson(data: CreateLessonDto!): LessonDto!
+  updateLesson(data: UpdateLessonDto!): LessonDto!
+  deleteLesson(id: String!): LessonDto!
+  createUser(data: CreateUserInput!): UserResponse!
+  updateUser(data: UpdateUserInput!): UserResponse!
+  deleteUser(id: String!): Boolean!
+  createLessonExplanation(data: CreateLessonExplanationInput!): LessonExplanationResponse!
+  updateLessonExplanation(data: UpdateLessonExplanationInput!): LessonExplanationResponse!
+  deleteLessonExplanation(id: String!): LessonExplanationResponse!
+  enrollCourse(input: CreateEnrollmentInput!): EnrollmentResponse!
+  updateProgress(input: UpdateProgressInput!): ProgressResponse!
+  createSystemPrompt(data: CreateSystemPromptInput!): SystemPromptResponse!
+  updateSystemPrompt(id: String!, data: UpdateSystemPromptInput!): SystemPromptResponse!
+  deleteSystemPrompt(id: String!): Boolean!
+  createConversation(data: CreateConversationInput!): ConversationResponse!
+  updateConversation(data: UpdateConversationInput!): ConversationResponse!
+  deleteConversation(id: String!): ConversationResponse!
+  createMessage(data: CreateMessageInput!): MessageResponse!
+  updateMessage(data: UpdateMessageInput!): MessageResponse!
+  deleteMessage(id: String!): MessageResponse!
+}
+
+input CreateCourseDto {
+  courseName: String!
+  abstract: String
+}
+
+input UpdateCourseDto {
+  id: String!
+  courseName: String
+  abstract: String
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input GoogleLoginInput {
+  googleId: String!
+  email: String!
+}
+
+input CreateLessonDto {
+  lessonName: String!
+  abstract: String
+  courseId: String!
+}
+
+input UpdateLessonDto {
+  id: String!
+  lessonName: String!
+  abstract: String
+  courseId: String!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  phoneNumber: String
+  password: String!
+}
+
+input UpdateUserInput {
+  id: String!
+  username: String
+  email: String
+  phoneNumber: String
+}
+
+input CreateLessonExplanationInput {
+  emotion: String!
+  lessonId: String!
+  userId: String!
+  courseId: String!
+}
+
+input UpdateLessonExplanationInput {
+  id: String!
+  content: String!
+}
+
+input CreateEnrollmentInput {
+  userId: String!
+  courseId: String!
+  totalLessons: Float!
+}
+
+input UpdateProgressInput {
+  userId: String!
+  progressId: String!
+  completedLessons: Float!
+}
+
+input CreateSystemPromptInput {
+  title: String!
+  content: String!
+}
+
+input UpdateSystemPromptInput {
+  title: String
+  content: String
+}
+
+input CreateConversationInput {
+  name: String
+  creatorId: String!
+}
+
+input UpdateConversationInput {
+  id: String!
+  name: String
+}
+
+input CreateMessageInput {
+  content: String!
+  conversationId: String!
+  courseId: String!
+  lessonId: String!
+}
+
+input UpdateMessageInput {
+  id: String!
+  content: String!
+}
+
+type Subscription {
+  messageAdded(conversationId: String!): MessageResponse!
+}

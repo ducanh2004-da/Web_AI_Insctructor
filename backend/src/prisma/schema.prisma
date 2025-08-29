@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../../node_modules/.prisma/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"] 
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String  @id @default(uuid())
+  username    String  @default("Anonymous")
+  email       String  @unique
+  password    String?
+  googleId    String? @unique
+  phoneNumber String? 
+  address     String?
+  role        String    
+  enrollments Enrollment[]
+  conversations Conversation[]
+  progress Progress[] 
+  explanations LessonExplanation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum role {
+  ADMIN
+  USER
+}
+
+
+
+model Course {
+  id         String    @id @default(uuid())
+  courseName String
+  abstract   String?
+  lessons    Lesson[]
+  enrollments Enrollment[]
+  progress Progress[] 
+  keyLearnings  String[]     @default([])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Lesson {
+  id         String  @id @default(uuid())
+  lessonName String
+  abstract   String?
+  course     Course  @relation(fields: [courseId], references: [id])
+  courseId   String
+  explanations LessonExplanation[] 
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model LessonExplanation {
+  id        String   @id @default(uuid())
+  emotion   String 
+  content   String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([lessonId, userId])  // Ensures one explanation per lesson per user
+}
+
+model Enrollment {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  course    Course  @relation(fields: [courseId], references: [id])
+  courseId  String
+  enrolledAt DateTime @default(now())
+}
+model AI {
+  id            String         @id @default(uuid())
+  emotion       String
+  gender        String
+  systemPrompts SystemPrompt[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model SystemPrompt {
+  id       String @id @default(uuid())
+  title    String
+  content  String
+  ai       AI?    @relation(fields: [aiId], references: [id])
+  aiId     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SenderType {
+  USER
+  AI
+}
+
+
+model Message {
+  id             String     @id @default(uuid())
+  senderType     SenderType 
+  content        String
+  timestamp      DateTime   @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+}
+
+model Conversation {
+  id            String    @id @default(uuid())
+  name          String?
+  creator       User      @relation(fields: [creatorId], references: [id])
+  creatorId     String
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Progress {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  course     Course   @relation(fields: [courseId], references: [id])
+  courseId   String
+  completedLessons Int            @default(0)
+  totalLessons     Int            @default(0)
+  percentage Float    @default(0.0) 
+  status     ProgressStatus @default(IN_PROGRESS)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([percentage])
+}
+
+enum ProgressStatus {
+  IN_PROGRESS
+  COMPLETED
+}

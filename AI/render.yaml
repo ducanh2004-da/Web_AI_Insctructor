@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ai-elearning
+    runtime: python
+    buildCommand: pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TOGETHER_API_KEY
+        sync: false
+      - key: PDF_DATA_PATH
+        value: ./data/courses/{course_id}/{lesson_id}.pdf
+      - key: VECTOR_DB_PATH
+        value: ./data/vectorstores/{course_id}/{lesson_id}
