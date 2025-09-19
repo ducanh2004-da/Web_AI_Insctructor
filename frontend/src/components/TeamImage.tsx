@@ -10,12 +10,12 @@ interface TeamMemberProps {
   };
 }
 
-const backendMembers = teamMembers.filter(member => 
-  member.jobTitle.includes('Backend') || member.jobTitle.includes('AI')
+const AIMembers = teamMembers.filter(member => 
+  member.jobTitle.includes('AI')
 )
 
-const frontendMembers = teamMembers.filter(member =>
-  member.jobTitle.includes('Frontend')
+const fullstackMembers = teamMembers.filter(member =>
+  member.jobTitle.includes('Fullstack')
 )
 
 function TeamMember({ name, jobTitle, image }: TeamMemberProps) {
@@ -40,11 +40,11 @@ function TeamMember({ name, jobTitle, image }: TeamMemberProps) {
 export default function TeamImage() {
   return (
     <div className="w-full grid grid-cols-3 gap-4">
-      {backendMembers.map((member, index) => (
+      {AIMembers.map((member, index) => (
         <TeamMember key={index} {...member} />
       ))}
-      <div className="col-span-3 flex justify-center gap-10">
-        {frontendMembers.map((member, index) => (
+      <div className="flex justify-center gap-10">
+        {fullstackMembers.map((member, index) => (
           <TeamMember key={index} {...member} />
         ))}
       </div>

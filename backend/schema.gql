@@ -72,11 +72,21 @@ type SystemPromptResponse {
 }
 
 type MessageResponse {
-  id: String!
-  content: String!
-  senderType: String!
-  conversationId: String!
-  timestamp: DateTime!
+  id: String
+  content: String
+  senderType: SenderType
+  conversationId: String
+  timestamp: DateTime
+  type: String
+  message: String
+  agent: String
+  response: String
+}
+
+"""Sender type from Prisma enum"""
+enum SenderType {
+  USER
+  AI
 }
 
 type ConversationResponse {
@@ -137,6 +147,7 @@ type Mutation {
   createMessage(data: CreateMessageInput!): MessageResponse!
   updateMessage(data: UpdateMessageInput!): MessageResponse!
   deleteMessage(id: String!): MessageResponse!
+  createMessage2(data: CreateMessage2Input!): MessageResponse!
 }
 
 input CreateCourseDto {
@@ -246,6 +257,13 @@ input CreateMessageInput {
 input UpdateMessageInput {
   id: String!
   content: String!
+}
+
+input CreateMessage2Input {
+  message: String
+  sessionId: String
+  fileBase64: String
+  filename: String
 }
 
 type Subscription {

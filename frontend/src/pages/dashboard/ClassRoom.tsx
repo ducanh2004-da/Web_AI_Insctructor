@@ -173,7 +173,7 @@ export default function ClassRoomPage() {
         />
       </div>
       
-      <div className="size-full" style={{ backfaceVisibility: 'hidden' }}>
+      <div className="size-full" style={{ backfaceVisibility: 'hidden', width: "120%", height: "120%" }}>
         <Canvas
           camera={{ position: [0, 0, 0.0001] }}
           dpr={[1, 1.5]}

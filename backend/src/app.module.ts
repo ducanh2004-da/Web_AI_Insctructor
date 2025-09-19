@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { CourseModule } from './modules/course.module';
-import { LessonModule } from './modules/lesson.module';
+import { CourseModule } from './course/course.module';
+import { LessonModule } from './lesson/lesson.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './modules/user.module';
-import { AuthModule } from './modules/auth.module';
-import { LessonExplanationModule } from './modules/lesson-explanation.module';
-import { EnrollmentModule } from './modules/enrollment.module';
-import { ProgressModule } from './modules/progress.module';
-import { SystemPromptModule } from './modules/system-prompt.module';
-import { ConversationModule } from './modules/conversation.module';
-import { MessageModule } from './modules/message.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { LessonExplanationModule } from './lesson-explaination/lesson-explanation.module';
+import { EnrollmentModule } from './enrollment/enrollment.module';
+import { ProgressModule } from './progress/progress.module';
+import { SystemPromptModule } from './system-prompt/system-prompt.module';
+import { ConversationModule } from './conversation/conversation.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
