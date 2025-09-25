@@ -12,6 +12,7 @@ import { ProgressModule } from './progress/progress.module';
 import { SystemPromptModule } from './system-prompt/system-prompt.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 @Module({
   imports: [
@@ -21,8 +22,9 @@ import { MessageModule } from './message/message.module';
       autoSchemaFile: 'schema.gql',
       debug: true, // Bật debug mode
       introspection: true,
-      playground: true,
+      playground: false,
       csrfPrevention: false, // Tắt CSRF protection
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
       subscriptions: {
         'graphql-ws': true,
         'subscriptions-transport-ws': true,

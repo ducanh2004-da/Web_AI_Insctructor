@@ -44,16 +44,21 @@ export class ProgressService {
       if (!progress) {
         throw new NotFoundException('Progress not found');
       }
+      const completeTask = await this.prisma.lesson.count({
+        where:{
+          isDone: true
+        }
+      });
 
       const { totalLessons, percentage, status } =
         await this.calculateProgress(
           progress.courseId,
-          input.completedLessons,
+          completeTask,
           progress.status,
         );
 
       return this.progressDAO.updateProgress(tx, input.progressId, {
-        completedLessons: input.completedLessons,
+        completedLessons: completeTask,
         percentage,
         status,
       });

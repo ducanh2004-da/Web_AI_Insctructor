@@ -33,4 +33,7 @@ export class LessonService {
   async deleteLesson(id: string): Promise<Lesson> {
     return this.lessonDAO.deleteLesson(id);
   }
+  async markDone(id: string, isDone: boolean): Promise<Lesson>{
+    return this.lessonDAO.markDone(id, isDone);
+  }
 }

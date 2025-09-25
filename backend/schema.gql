@@ -31,6 +31,16 @@ type LessonDto {
   updatedAt: DateTime!
 }
 
+type ProgressResponse {
+  id: String!
+  userId: String!
+  courseId: String!
+  completedLessons: Float!
+  totalLessons: Float!
+  percentage: Float!
+  updatedAt: DateTime!
+}
+
 type UserResponse {
   id: String!
   username: String!
@@ -52,16 +62,6 @@ type EnrollmentResponse {
   userId: String!
   courseId: String!
   enrolledAt: DateTime!
-}
-
-type ProgressResponse {
-  id: String!
-  userId: String!
-  courseId: String!
-  completedLessons: Float!
-  totalLessons: Float!
-  percentage: Float!
-  updatedAt: DateTime!
 }
 
 type SystemPromptResponse {
@@ -105,12 +105,12 @@ type Query {
   getAllLessons: [LessonDto!]!
   getLessonsByCourseId(id: String!): [LessonDto!]!
   getLessonById(id: String!): LessonDto
+  getProgress(progressId: String!): ProgressResponse!
   users: [UserResponse!]!
   user(id: String!): UserResponse!
   lessonExplanation(id: String!): LessonExplanationResponse
   lessonExplanationByLessonAndUser(lessonId: String!, userId: String!): LessonExplanationResponse
   getUserEnrollments(userId: String!): [EnrollmentResponse!]!
-  getProgress(progressId: String!): ProgressResponse!
   systemPrompts: [SystemPromptResponse!]!
   systemPrompt(id: String!): SystemPromptResponse!
   myConversations: [ConversationResponse!]!
@@ -130,6 +130,8 @@ type Mutation {
   createLesson(data: CreateLessonDto!): LessonDto!
   updateLesson(data: UpdateLessonDto!): LessonDto!
   deleteLesson(id: String!): LessonDto!
+  markDone(id: String!, isDone: Boolean!): LessonDto!
+  updateProgress(input: UpdateProgressInput!): ProgressResponse!
   createUser(data: CreateUserInput!): UserResponse!
   updateUser(data: UpdateUserInput!): UserResponse!
   deleteUser(id: String!): Boolean!
@@ -137,17 +139,15 @@ type Mutation {
   updateLessonExplanation(data: UpdateLessonExplanationInput!): LessonExplanationResponse!
   deleteLessonExplanation(id: String!): LessonExplanationResponse!
   enrollCourse(input: CreateEnrollmentInput!): EnrollmentResponse!
-  updateProgress(input: UpdateProgressInput!): ProgressResponse!
   createSystemPrompt(data: CreateSystemPromptInput!): SystemPromptResponse!
   updateSystemPrompt(id: String!, data: UpdateSystemPromptInput!): SystemPromptResponse!
   deleteSystemPrompt(id: String!): Boolean!
   createConversation(data: CreateConversationInput!): ConversationResponse!
   updateConversation(data: UpdateConversationInput!): ConversationResponse!
   deleteConversation(id: String!): ConversationResponse!
-  createMessage(data: CreateMessageInput!): MessageResponse!
   updateMessage(data: UpdateMessageInput!): MessageResponse!
   deleteMessage(id: String!): MessageResponse!
-  createMessage2(data: CreateMessage2Input!): MessageResponse!
+  createMessage(data: CreateMessage2Input!): MessageResponse!
 }
 
 input CreateCourseDto {
@@ -189,6 +189,12 @@ input UpdateLessonDto {
   courseId: String!
 }
 
+input UpdateProgressInput {
+  userId: String!
+  progressId: String!
+  completedLessons: Float!
+}
+
 input CreateUserInput {
   username: String!
   email: String!
@@ -221,12 +227,6 @@ input CreateEnrollmentInput {
   totalLessons: Float!
 }
 
-input UpdateProgressInput {
-  userId: String!
-  progressId: String!
-  completedLessons: Float!
-}
-
 input CreateSystemPromptInput {
   title: String!
   content: String!
@@ -247,13 +247,6 @@ input UpdateConversationInput {
   name: String
 }
 
-input CreateMessageInput {
-  content: String!
-  conversationId: String!
-  courseId: String!
-  lessonId: String!
-}
-
 input UpdateMessageInput {
   id: String!
   content: String!
@@ -264,6 +257,7 @@ input CreateMessage2Input {
   sessionId: String
   fileBase64: String
   filename: String
+  conversationId: String!
 }
 
 type Subscription {

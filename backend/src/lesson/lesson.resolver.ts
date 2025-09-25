@@ -56,4 +56,13 @@ export class LessonResolver {
   ): Promise<LessonDto> {
     return this.lessonService.deleteLesson(id);
   }
+
+  @Mutation(() => LessonDto)
+  @UseGuards(AuthGuard)
+  async markDone(
+    @Args('id', { type: () => String }) id: string,
+    @Args('isDone', { type: () => Boolean }) isDone: boolean,
+  ): Promise<LessonDto> {
+    return this.lessonService.markDone(id, isDone);
+  }
 }

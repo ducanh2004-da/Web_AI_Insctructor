@@ -32,7 +32,8 @@ export class UpdateMessageInput {
 @InputType()
 export class CreateMessage2Input {
   @Field(() => String, { nullable: true })
-  message?: string;
+  @IsString()
+  message: string;
 
   @Field(() => String, { nullable: true })
   sessionId?: string;
@@ -43,4 +44,8 @@ export class CreateMessage2Input {
 
   @Field(() => String, { nullable: true })
   filename?: string;
+
+  @Field(() => String)
+  @IsUUID()
+  conversationId: string;
 }

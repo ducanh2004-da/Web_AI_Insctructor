@@ -27,13 +27,13 @@ export class MessageResolver {
     @Inject('PUB_SUB') private pubSub: PubSub,
     private readonly messageService: MessageService,
     private readonly conversationService: ConversationService,
-  ) {}
+  ) { }
 
   @Query(() => MessageResponse, { nullable: true })
   @Roles('USER', 'ADMIN')
   async message(
     @Args('id') id: string,
-    @Context() ctx: AuthContext,
+    // @Context() ctx: AuthContext,
   ): Promise<MessageResponse | null> {
     const message = await this.messageService.getMessageById(id);
     if (!message) return null;
@@ -42,7 +42,8 @@ export class MessageResolver {
     const conversation = await this.conversationService.getConversationById(
       message.conversationId ?? '1',
     );
-    if (!conversation || conversation.creatorId !== ctx.user.id) {
+    // if (!conversation || conversation.creatorId !== ctx.user.id) {
+    if (!conversation) {
       throw new Error('Unauthorized to access this message');
     }
     return message;
@@ -52,30 +53,16 @@ export class MessageResolver {
   @Roles('USER', 'ADMIN')
   async messagesByConversation(
     @Args('conversationId') conversationId: string,
-    @Context() ctx: AuthContext,
+    // @Context() ctx: AuthContext,
   ): Promise<MessageResponse[]> {
     // Check if user has access to the conversation
     const conversation =
       await this.conversationService.getConversationById(conversationId);
-    if (!conversation || conversation.creatorId !== ctx.user.id) {
+    // if (!conversation || conversation.creatorId !== ctx.user.id) {
+    if (!conversation) {
       throw new Error("Unauthorized to access this conversation's messages");
     }
     return this.messageService.getMessagesByConversationId(conversationId);
-  }
-
-  @Mutation(() => MessageResponse)
-  async createMessage(
-    @Args('data') input: CreateMessageInput,
-    @Context() ctx: AuthContext,
-  ): Promise<MessageResponse> {
-    // Check if user has access to the conversation
-    const conversation = await this.conversationService.getConversationById(
-      input.conversationId,
-    );
-    if (!conversation || conversation.creatorId !== ctx.user.id) {
-      throw new Error('Unauthorized to create message in this conversation');
-    }
-    return this.messageService.createMessage(input);
   }
 
   @Mutation(() => MessageResponse)
@@ -133,9 +120,18 @@ export class MessageResolver {
   }
 
   @Mutation(() => MessageResponse)
-  async createMessage2(
+  async createMessage(
     @Args('data') data: CreateMessage2Input,
+    // @Context() ctx: AuthContext
   ): Promise<MessageResponse> {
+    // Check if user has access to the conversation
+    const conversation = await this.conversationService.getConversationById(
+      data.conversationId,
+    );
+    // if (!conversation || conversation.creatorId !== ctx.user.id) {
+    if (!conversation) {
+      throw new Error('Unauthorized to create message in this conversation');
+    }
     return this.messageService.streamChatFromFastApi(data);
   }
 }

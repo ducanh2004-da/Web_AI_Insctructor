@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { PrismaService } from '@/prisma/prisma.service';
 import { Lesson } from '@prisma/client';
+import { ProgressService } from '@/progress/progress.service';
+import { UpdateProgressInput } from '@/common/model/DTO/progress/progress.input';
 
 @Injectable()
 export class LessonDAO {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private progress: ProgressService) { }
 
   async createLesson(data: {
     lessonName: string;
@@ -34,5 +36,27 @@ export class LessonDAO {
 
   async deleteLesson(id: string): Promise<Lesson> {
     return this.prisma.lesson.delete({ where: { id } });
+  }
+  async markDone(id: string, isDone: boolean): Promise<Lesson> {
+    const lesson = this.prisma.lesson.findFirst({
+      where: { id }
+    });
+    const mark = await this.prisma.lesson.update({
+      where: { id },
+      data: {
+        isDone: isDone
+      }
+    })
+    // await this.progress.updateProgress({
+    //   userId: "7aa9bceb-0f50-4e8c-b6f8-16a752a31399",
+    //   progressId: "5177aadf-e3d2-4ea8-b066-bc54d809047c",
+    //   completedLessons: 0,
+    // } as UpdateProgressInput);
+    await this.progress.updateProgress({
+      userId: "7aa9bceb-0f50-4e8c-b6f8-16a752a31399",
+      progressId: "5177aadf-e3d2-4ea8-b066-bc54d809047c",
+      completedLessons: 0,
+    });
+    return mark;
   }
 }

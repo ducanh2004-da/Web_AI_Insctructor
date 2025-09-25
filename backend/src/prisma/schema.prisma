@@ -50,6 +50,7 @@ model Course {
   keyLearnings  String[]     @default([])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  isDone     Boolean  @default(false)
 }
 
 model Lesson {
@@ -61,6 +62,7 @@ model Lesson {
   explanations LessonExplanation[] 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  isDone     Boolean  @default(false)
 }
 
 model LessonExplanation {
