@@ -301,8 +301,8 @@ const Scene = () => {
       <Leva hidden />
       <CameraManager />
       <Teacher
-        position={[-1.1, -1.75, -3.2]}
-        scale={1.425}
+        position={[-0.05, -2.3, -2.0]}
+        scale={1.9}
         rotation-y={degToRad(205)}
       />
       <Html
@@ -334,39 +334,13 @@ const Scene = () => {
               overflow-y-auto p-[3.25rem] flex flex-col items-center justify-center transition-all duration-500 ease-in-out`}
             >
               {/* ...existing code... */}
-              <div
-                ref={welcomeContentRef}
-                className="text-center text-black max-w-[200rem] flex flex-col items-center justify-center h-full mt-[3.5rem]"
-                style={{ display: 'flex' }}
-              >
-                <h1 className="text-white text-[5.65rem] font-bold mb-[2rem] tracking-tight drop-shadow-lg">
-                  Welcome to the classroom!
-                </h1>
-
-                <div className="w-[82rem] bg-white/10 backdrop-blur-sm p-[3rem] rounded-[1.6rem] mb-[3rem] border border-white/20">
-                  <p className="text-white/95 text-[2.8rem] leading-relaxed font-normal mb-[2rem]">
-                    Explore an interactive learning environment where you can ask questions,
-                    create conversations, and learn at your own pace.
-                  </p>
-
-                  <div className="w-full h-[.1rem] bg-white/20 my-[2rem]"></div>
-
-                  <p className="text-white/95 text-[2.5rem] font-medium">
-                    After viewing the lesson, you can interact with your teacher by clicking on the chat button.
-                  </p>
-                </div>
-
-                <p className="text-white/85 text-[2.3rem] font-light mb-[1.5rem] mt-[1rem]">
-                  Click the button below to start your lesson
-                </p>
-
-                <div className="animate-bounce animate-duration-1000 opacity-80 mt-[1rem]">
+              
+              <div ref={welcomeContentRef} className="animate-bounce animate-duration-1000 opacity-80 mt-[1rem]">
                   <Icon
                     icon="bitcoin-icons:arrow-down-filled"
                     className="!size-[4rem] text-white drop-shadow-md"
                   />
                 </div>
-              </div>
               {/* ...existing code... */}
               <div
                 ref={loadingContentRef}
@@ -422,22 +396,6 @@ const Scene = () => {
               </Button>
             </div>
           </div>
-          {/* YouTube References Sidebar */}
-          <aside className="min-w-[32rem] max-w-[38rem] h-full bg-white/80 dark:bg-zinc-900/80 border border-primary/10 rounded-2xl shadow-xl p-8 flex flex-col gap-6 items-start justify-start backdrop-blur-lg transition-all duration-500">
-            <h3 className="text-3xl font-bold text-primary mb-2">References</h3>
-            <ul className="flex flex-col gap-4 w-full">
-              {
-                youtubeLink.map((link, index) => (
-                  <li key={index}>
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-2xl font-semibold text-blue-700 dark:text-blue-300 hover:underline hover:text-blue-500 transition-colors">
-                      <Icon icon="logos:youtube-icon" className="text-2xl" />
-                      {link.title}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </aside>
         </div>
       </Html>
       <Gltf
