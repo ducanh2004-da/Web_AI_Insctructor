@@ -10,17 +10,17 @@ export const contactOptions = [
       icon: 'mdi:chat-question',
       title: 'Chat to support',
       description: 'We are here to help.',
-      link: 'mailto: baonhanthai2710@gmail.com',
-      linkLabel: 'baonhanthai2710@gmail.com'
+      link: 'mailto: trongdung143@gmail.com',
+      linkLabel: 'trongdung143@gmail.com'
     },
     {
       icon: 'mdi:phone',
       title: 'Call us',
       description: 'Mon-Fri from 8am to 5pm.',
       link: '#',
-      linkLabel: '+84 0833950464',
+      linkLabel: '+84 353199400',
       onClick: () => {
-        navigator.clipboard.writeText('+84 0833950464')
+        navigator.clipboard.writeText('+84 353199400')
           .then(() => alert('Phone number copied to clipboard!'))
           .catch(err => console.error('Failed to copy:', err))
       }

@@ -23,7 +23,7 @@ export default function AboutPage() {
         <p className="w-[33%] text-[1.75rem] font-normal mb-7">
           Discover our mission and values that drive our commitment to delivering innovative learning experiences.
         </p>
-        <div className="w-[70%] text-center gap-6 mb-10 relative z-10">
+        <div className="w-[70%] text-center gap-6 mb-10 relative z-10 m-auto flex justify-center mr-13 mt-5">
           <TeamImage />
         </div>
       </div>

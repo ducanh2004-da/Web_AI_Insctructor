@@ -74,7 +74,7 @@ const ConversationItem = ({
         id={`conversation-${conversation.id}`}
         onClick={() => onClick(conversation)}
         className={cn(
-          'p-4 rounded-lg bg-white/10 hover:bg-white/15 cursor-pointer transition-colors drop-shadow-lg',
+          'p-4 mt-1 rounded-lg bg-black/20 hover:bg-black/30 cursor-pointer text-white transition-colors drop-shadow-lg',
           'border border-white/20 hover:border-white/20 group',
           isSelected && 'bg-white/20 border-white/30'
         )}

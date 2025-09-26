@@ -125,7 +125,7 @@ export default function ClassroomLoading({
       
       {sdkError && !sdkLoading && (
         <div className="bg-red-900/40 text-red-200 text-xs p-3 rounded-lg mt-6 max-w-md text-center border border-red-700">
-          <strong className="block mb-1">Lỗi Azure SDK:</strong> {sdkError}
+          <strong className="block mb-1">Azure SDK Erorr:</strong> {sdkError}
         </div>
       )}
       

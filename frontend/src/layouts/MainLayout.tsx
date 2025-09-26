@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores'
 
 import { PageTransition, LanguageDropdown, MainDropdown } from '@/components'
 import { Skeleton } from '@/components/ui/skeleton'
+import { title } from 'process'
 
 export default function MainLayout() {
   const location = useLocation()
@@ -40,6 +41,10 @@ export default function MainLayout() {
     {
       title: 'Contact',
       path: '/contact'
+    },
+    {
+      title: 'Mind map Storage',
+      path: '/mindmap-store'
     }
   ]
 

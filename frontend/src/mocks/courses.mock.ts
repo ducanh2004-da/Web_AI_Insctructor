@@ -185,12 +185,8 @@ export const mockCourseImage: Record<string, string> = {
 }
 
 export const teamMembers = [
-  // Backend members
-  { name: 'Do Duc Anh', jobTitle: 'Backend Developer', image: { name: 'ducanhdo', folder: 'teammates' } },
-  { name: 'La Huy Hoang', jobTitle: 'Backend Developer', image: { name: 'hhoang', folder: 'teammates' } },
+  // Web members
+  { name: 'Do Duc Anh', jobTitle: 'Fullstack Developer', image: { name: 'ducanhdo', folder: 'teammates' } },
+  // A.I members
   { name: 'Luu Trong Dung', jobTitle: 'AI Developer', image: { name: 'trongdung', folder: 'teammates' } },
-  
-  // Frontend members
-  { name: 'Lam Quoc Hung', jobTitle: 'Frontend Developer', image: { name: 'hwan', folder: 'teammates' } },
-  { name: 'Thai Bao Nhan', jobTitle: 'Frontend Developer', image: { name: 'nhancat', folder: 'teammates' } }
 ]
