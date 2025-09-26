@@ -177,6 +177,10 @@ import { useAuthStore } from '@/stores';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/configs';
 import { toast } from 'sonner';
+import ConversationItem from './../../features/classroom/components/ConversationItem';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 
 import {
   MessageBox,
@@ -196,11 +200,11 @@ import { cn } from '@/lib' // giữ nếu bạn có helper này
 const Input = React.forwardRef<HTMLInputElement, any>((props, ref) => <input ref={ref} {...props} />);
 // Replace these with your real components
 const ConversationSkeleton = () => <div className="h-12 bg-slate-100 rounded" />;
-const ConversationItem = ({ conversation, onClick }: any) => (
-  <div className="p-2 cursor-pointer" onClick={() => onClick?.(conversation)}>
-    {conversation?.name ?? conversation?.id}
-  </div>
-);
+// const ConversationItem = ({ conversation, onClick }: any) => (
+//   <div className="p-2 cursor-pointer" onClick={() => onClick?.(conversation)}>
+//     {conversation?.name ?? conversation?.id}
+//   </div>
+// );
 // Stubs for update/delete states & handlers (replace with your real logic)
 const updateConversationMutation: any = { isLoading: false };
 const deleteConversationMutation: any = { isLoading: false };
@@ -276,13 +280,7 @@ export default function ClassRoomPage() {
     isFetching: isRefetching
   } = useQuery<Conversation[], Error>({
     queryKey: ['myConversations', authUser?.id],
-    queryFn: async () => {
-      if (!authUser?.id) return [];
-      // <--- GỌI hàm đúng cách. Nếu service cần userId thì truyền, nếu không thì remove arg.
-      // Ví dụ: conversationService.getMyConversations(userId)
-      // Adjust according to your actual service signature:
-      return await conversationService.getMyConversations();
-    },
+    queryFn: conversationService.getMyConversations,
     enabled: !!authUser?.id,
     staleTime: 1000 * 60 * 2
   });
@@ -448,7 +446,11 @@ export default function ClassRoomPage() {
 
   const flushBuffer = useCallback(() => {
     if (!streamingMessageIdRef.current) return;
-    setMessages((prev) => prev.map((m) => (m.id === streamingMessageIdRef.current ? { ...m, text: bufferRef.current } : m)));
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === streamingMessageIdRef.current ? { ...m, text: bufferRef.current } : m
+      )
+    );
   }, []);
 
   const clearFlushTimer = useCallback(() => {
@@ -589,6 +591,15 @@ export default function ClassRoomPage() {
         const chunkEvents = events.filter(
           (ev) => ev && (ev.type === 'chunk' || ev.type === 'status' || ev.type === 'done' || ev.type === 'end' || ev.type === 'raw')
         );
+        // Nếu không có chunk -> server trả full MD, append message sử dụng MD nguyên bản
+        if (!chunkEvents.length) {
+          setMessages((prev) => [
+            ...prev,
+            { id: Date.now() + Math.random(), role: 'assistant', text: agg, ts: Date.now() }
+          ]);
+        } else {
+          await playChunksSequentially(chunkEvents as ChunkEvent[], { charDelay: 12, betweenChunksDelay: 60, flushInterval: 80 });
+        }
 
         await playChunksSequentially(chunkEvents as ChunkEvent[], { charDelay: 12, betweenChunksDelay: 60, flushInterval: 80 });
         setStatusText('Hoàn tất');
@@ -661,15 +672,6 @@ export default function ClassRoomPage() {
           <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-2 border-b">
-              {/* <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white text-2xl font-extrabold shadow-lg">
-                  AI
-                </div>
-                <div>
-                  <div className="text-2xl font-semibold">AI Tutor — Lớp Học 1</div>
-                  <div className="text-sm text-slate-500 mt-1">Hỏi nhanh, nhận giải thích dễ hiểu</div>
-                </div>
-              </div> */}
 
               {/* <div
                 style={{ opacity: initialLoad ? 1 : 0, transition: 'opacity 0.5s' }}
@@ -693,12 +695,13 @@ export default function ClassRoomPage() {
                 </Tooltip>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 w-[20%]">
+                <Button className="w-[60%] text-sm bg-black/50 hover:bg-black/20">Take the quiz</Button>
                 <div className="text-sm text-slate-600" aria-live="polite">
-                  {isStreaming ? 'Đang trả lời...' : statusText || 'Sẵn sàng'}
+                  {isStreaming ? 'Answering...' : statusText || 'Ready'}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-white border flex items-center justify-center text-sm text-slate-600 shadow">GV</div>
+                  <div className="w-11 h-11 rounded-full bg-white border flex items-center justify-center text-sm text-slate-600 shadow">Tutor</div>
                 </div>
               </div>
             </div>
@@ -713,8 +716,8 @@ export default function ClassRoomPage() {
             >
               {messages.length === 0 && (
                 <div className="text-center text-slate-400 mt-8">
-                  <div className="text-2xl font-medium">Chào mừng! Hãy đặt câu hỏi để bắt đầu bài học.</div>
-                  <div className="mt-3 text-base">Bạn có thể tải lên file, hỏi bài tập, hoặc dùng các gợi ý nhanh dưới đây.</div>
+                  <div className="text-2xl font-medium">Welcome! Do you have any question about the course</div>
+                  <div className="mt-3 text-base">You can upload file, learn everything in the lesson, ask any question about the leson</div>
                 </div>
               )}
 
@@ -734,14 +737,30 @@ export default function ClassRoomPage() {
                         style={{ boxShadow: isUser ? '0 10px 30px rgba(59,130,246,0.15)' : undefined }}
                         aria-live={isUser ? undefined : 'polite'}
                       >
-                        {m.text}
+                        {isUser ? (
+                          m.text
+                        ) : (
+                          <ReactMarkdown
+                            children={m.text ?? ''}
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeSanitize]}
+                            components={{
+                              // giữ nguyên pre/ code appearance, và giữ whitespace pre-wrap cho đoạn văn
+                              p: ({ node, ...props }) => <p {...props} className="m-0 whitespace-pre-wrap" />,
+                              li: ({ node, ...props }) => <li {...props} />,
+                              strong: ({ node, ...props }) => <strong {...props} />,
+                              em: ({ node, ...props }) => <em {...props} />
+                              // bạn có thể override các phần tử khác nếu muốn custom styles
+                            }}
+                          />
+                        )}
                       </div>
                       <div className={`mt-2 text-sm ${isUser ? 'text-right text-slate-400' : 'text-slate-500'}`}>{formatTime(m.ts)}</div>
                     </div>
 
                     {isUser && (
                       <div className="ml-4 flex-shrink-0">
-                        <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium shadow-sm text-sm">Bạn</div>
+                        <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium shadow-sm text-sm">You</div>
                       </div>
                     )}
                   </div>
@@ -755,7 +774,7 @@ export default function ClassRoomPage() {
                   </div>
                   <div className="bg-white border px-5 py-3 rounded-3xl rounded-bl-none shadow-sm">
                     <div className="flex items-center gap-3">
-                      <span className="text-base text-slate-600">Đang nghĩ</span>
+                      <span className="text-base text-slate-600">Thinking...</span>
                       <span className="inline-flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-slate-500/80" />
                         <span className="w-2.5 h-2.5 rounded-full animate-pulse bg-slate-500/60 delay-75" />
@@ -771,8 +790,8 @@ export default function ClassRoomPage() {
             <form onSubmit={handleSend} className="p-6 border-t bg-white flex flex-col gap-4">
               <div className="flex items-start gap-4">
                 <textarea
-                  aria-label="Nhập câu hỏi"
-                  placeholder="Viết câu hỏi... (Shift+Enter xuống dòng, Enter gửi)"
+                  aria-label="Input question"
+                  placeholder="Typing... (Shift+Enter for spacing, Enter for sending)"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -786,17 +805,17 @@ export default function ClassRoomPage() {
                   disabled={isStreaming}
                   aria-disabled={isStreaming}
                 >
-                  Gửi
+                  Send
                 </button>
 
                 <button type="button" onClick={handleStop} className="bg-red-500 mt-5 text-white px-5 py-3 rounded-xl text-sm" aria-label="Dừng trả lời">
-                  Dừng
+                  Stop
                 </button>
               </div>
 
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-500">Gợi ý nhanh:</span>
+                  <span className="text-sm text-slate-500">Hint:</span>
                   <div className="flex gap-2">
                     {quickPrompts.map((q) => (
                       <button
@@ -821,7 +840,7 @@ export default function ClassRoomPage() {
             <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-5 shadow border">
 
               <div className="flex items-center justify-between gap-4">
-                <p className="text-base text-slate-700">Tiến độ học:</p>
+                <p className="text-base text-slate-700">Learning Progress:</p>
 
                 {/* progress bar chiếm phần còn lại */}
                 <div className="flex-1 ml-4">
@@ -840,16 +859,22 @@ export default function ClassRoomPage() {
                 </div>
               </div>
 
-              <ul className="mt-3 space-y-3 text-sm">
+              <ul className="mt-3 space-y-3 text-sm overflow-y-auto max-h-25">
                 {Array.isArray(conversations) && conversations.length > 0 ? (
-                  conversations.map((item: Conversation, idx: number) => (
-                    <li key={item.id ?? idx} className="flex items-center gap-3">
-                      <div className="w-3.5 h-3.5 rounded-full bg-indigo-500" />
-                      <div>{item.name ?? item.id}</div>
-                    </li>
+                  conversations.map((item: any, idx: number) => (
+                    <ConversationItem
+                      key={item.id}
+                      conversation={item}
+                      isSelected={selectedConversationId === item.id}
+                      isUpdateLoading={updatingConversationId === item.id}
+                      isDeleteLoading={deletingConversationId === item.id}
+                      onClick={handleSelectConversation}
+                      onUpdate={handleUpdateConversation}
+                      onDelete={handleDeleteConversation}
+                    />
                   ))
                 ) : (
-                  <li className="text-slate-400">Không có cuộc hội thoại nào</li>
+                  <li className="text-slate-400">No conversation</li>
                 )}
               </ul>
 
@@ -880,7 +905,7 @@ export default function ClassRoomPage() {
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      className="flex-1 h-16 bg-white/10 hover:bg-white/20 rounded-full text-white hover:text-white border-white/20 text-[1.3rem] drop-shadow-lg"
+                      className="flex-1 h-16 bg-yellow hover:bg-yellow/20 rounded-full text-white hover:text-white text-[1.3rem] drop-shadow-lg"
                       onClick={toggleCreateForm}
                       disabled={isCreatingConversation}
                     >
@@ -918,7 +943,7 @@ export default function ClassRoomPage() {
                       <Button
                         onClick={() => window.location.reload()}
                         variant="outline"
-                        className="mt-4 bg-white/10 hover:bg-white/20 text-white hover:text-white rounded-full drop-shadow-lg"
+                        className="mt-4 bg-black/10 hover:bg-blac/20 text-white hover:text-white rounded-full drop-shadow-lg"
                       >
                         Try again
                       </Button>
@@ -930,7 +955,7 @@ export default function ClassRoomPage() {
                       <p className="text-center text-sm mb-3 text-white/80 drop-shadow-lg">Create a new conversation to start chatting!</p>
                       <Button
                         variant="outline"
-                        className="bg-black/30 hover:bg-black/20 text-white hover:text-white rounded-full drop-shadow-lg"
+                        className="bg-black/50 hover:bg-black/20 text-white hover:text-white rounded-full drop-shadow-lg"
                         onClick={toggleCreateForm}
                       >
                         Create new
@@ -956,18 +981,7 @@ export default function ClassRoomPage() {
                           <ConversationSkeleton key={`skeleton-${index}`} />
                         ))
                       ) : (
-                        (conversations ?? []).map((conversation: Conversation) => (
-                          <ConversationItem
-                            key={conversation.id}
-                            conversation={conversation}
-                            isSelected={selectedConversationId === conversation.id}
-                            isUpdateLoading={updatingConversationId === conversation.id}
-                            isDeleteLoading={deletingConversationId === conversation.id}
-                            onClick={handleSelectConversation}
-                            onUpdate={handleUpdateConversation}
-                            onDelete={handleDeleteConversation}
-                          />
-                        ))
+                        <></>
                       )}
                     </div>
                   )}
@@ -978,7 +992,7 @@ export default function ClassRoomPage() {
                 <div className="mt-4">
                   <Button
                     variant="default"
-                    className={cn('w-full bg-primary/80 hover:bg-primary text-white rounded-full h-16 text-[1.3rem] !p-0 drop-shadow-lg')}
+                    className={cn('w-full bg-black/50 hover:bg-black/20 text-white rounded-full h-16 text-[1.3rem] !p-0 drop-shadow-lg')}
                     onClick={toggleCreateForm}
                   >
                     Create new

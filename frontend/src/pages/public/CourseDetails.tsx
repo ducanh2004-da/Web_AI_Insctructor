@@ -16,7 +16,7 @@ export default function CourseDetailsPage() {
   const navigate = useNavigate()
   const { userDetails, user } = useAuthStore()
   const queryClient = useQueryClient()
-  
+
   const queryResults = useQueries({
     queries: [
       {
@@ -59,13 +59,13 @@ export default function CourseDetailsPage() {
       if (!userDetails?.id || !courseId) {
         throw new Error('Missing user or course information')
       }
-      
+
       if (!courseService || typeof courseService.enrollCourse !== 'function') {
         throw new Error('Course service not available')
       }
-      
+
       const totalLessons = parseFloat(lessons.length.toFixed(1))
-      
+
       return courseService.enrollCourse(
         userDetails.id,
         courseId,
@@ -108,7 +108,7 @@ export default function CourseDetailsPage() {
           enrollMutation.isPending && !isEnrolled && 'pointer-events-none'
         )}
         onClick={isEnrolled ? goToFirstLesson : handleEnroll}
-      > 
+      >
         {enrollMutation.isPending ? (
           <>
             <svg viewBox="25 25 50 50" className="loading__svg !w-[1.75rem] mr-2">
@@ -163,10 +163,10 @@ export default function CourseDetailsPage() {
               <Icon icon="ri:arrow-left-long-line" className="text-[1.75rem]" />
               <span className="text-[1.35rem]">Back to Courses</span>
             </Link>
-            <div 
+            <div
               onClick={() => window.location.reload()}
               className="relative group cursor-pointer"
-            > 
+            >
               <span className="text-primary text-[1.35rem] font-medium">Reload Page</span>
               <span className="absolute opacity-0 left-0 right-0 bottom-0 h-[.15rem] bg-primary group-hover:opacity-100 transition-all duration-(--duration-main)" />
             </div>
@@ -176,10 +176,10 @@ export default function CourseDetailsPage() {
     )
   }
 
-  const { 
+  const {
     id,
-    courseName, 
-    abstract, 
+    courseName,
+    abstract,
     keyLearnings,
     // instructor, 
     // level, 
@@ -188,13 +188,13 @@ export default function CourseDetailsPage() {
     // students, 
     // price, 
     // category,
-    image 
+    image
   } = course
 
   const renderLessonButton = (lessonId: string) => {
     if (isEnrolled) {
       return (
-        <Button 
+        <Button
           onClick={() => navigate(`/dashboard/classroom/${courseId}/lessons/${lessonId}`)}
           variant="default"
           className="rounded-full !px-5 py-3 text-[1.15rem] bg-black hover:bg-zinc-800 h-auto"
@@ -204,9 +204,9 @@ export default function CourseDetailsPage() {
         </Button>
       )
     }
-    
+
     return (
-      <Button 
+      <Button
         onClick={handleEnroll}
         variant="outline"
         className="rounded-full !px-5 py-3 text-[1.15rem] bg-white/80 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 h-auto"
@@ -225,11 +225,11 @@ export default function CourseDetailsPage() {
             <h1 className="text-[3rem] md:text-[4rem] font-bold text-white mb-8 leading-tight">
               {courseName}
             </h1>
-            
+
             <p className="text-[1.6rem] text-zinc-300 mb-10 leading-relaxed max-w-3xl">
               {abstract}
             </p>
-            
+
             <div className="flex items-center gap-5 mb-8">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center">
                 <Icon icon="ph:user-circle-fill" className="text-[3.5rem] text-zinc-400" />
@@ -240,16 +240,16 @@ export default function CourseDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="w-full md:w-[45%]">
             <div className="aspect-video rounded-lg overflow-hidden shadow-xl relative">
-                <CourseImage 
+              <CourseImage
                 courseId={id}
                 src={image?.name}
-                  alt={courseName}
+                alt={courseName}
                 folder={image?.folder}
                 className="h-full"
-                />
+              />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:bg-zinc-100 transition-colors duration-300">
                   <Icon icon="ph:play-fill" className="text-black text-[1.8rem] ml-1" />
@@ -259,7 +259,7 @@ export default function CourseDetailsPage() {
           </div>
         </div>
       </div>
-      
+
       <div className="px-24 py-14">
         <div className="flex flex-col lg:flex-row gap-16">
           <div className="w-full lg:w-8/12">
@@ -268,13 +268,13 @@ export default function CourseDetailsPage() {
                 <Icon icon="ph:graduation-cap-fill" className="text-zinc-800 text-[2.5rem]" />
                 What You'll Learn
               </h2>
-              
+
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {keyLearnings && keyLearnings.length > 0 ? (
                   keyLearnings.map((item, index) => (
-                  <li key={index} className="flex items-start gap-4">
-                    <Icon icon="ph:check-circle-fill" className="text-[1.6rem] text-zinc-800 mt-0.5 flex-shrink-0" />
-                    <span className="text-[1.35rem] text-zinc-700">{item}</span>
+                    <li key={index} className="flex items-start gap-4">
+                      <Icon icon="ph:check-circle-fill" className="text-[1.6rem] text-zinc-800 mt-0.5 flex-shrink-0" />
+                      <span className="text-[1.35rem] text-zinc-700">{item}</span>
                     </li>
                   ))
                 ) : (
@@ -284,16 +284,16 @@ export default function CourseDetailsPage() {
                 )}
               </ul>
             </div>
-            
+
             <div className="bg-white rounded-lg border border-zinc-200 shadow-md hover:shadow-lg transition-shadow p-10 mb-12">
               <h2 className="text-[2.5rem] font-bold text-zinc-900 mb-8 flex items-center gap-4">
                 <Icon icon="ph:path-fill" className="text-zinc-800 text-[2.5rem]" />
                 Course Curriculum
               </h2>
-              
+
               <div className="relative">
                 <div className="absolute left-[27px] top-0 bottom-0 w-1 bg-zinc-200"></div>
-                
+
                 <div className="space-y-8">
                   {lessons && lessons.length > 0 ? (
                     lessons.map((lesson, index) => (
@@ -325,7 +325,7 @@ export default function CourseDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="w-full lg:w-4/12">
             <div className="sticky top-6">
               <div className="bg-white rounded-lg border border-zinc-200 overflow-hidden shadow-md hover:shadow-lg transition-shadow">
@@ -336,16 +336,16 @@ export default function CourseDetailsPage() {
                       Open Access
                     </div>
                   </div>
-                  
+
                   {renderEnrollmentAction()}
-                  
+
                   <p className="text-center text-zinc-500 text-[1.25rem] mt-3.5">
                     {isEnrolled
-                      ? 'Continue your learning journey' 
+                      ? 'Continue your learning journey'
                       : 'Access the course content immediately'}
                   </p>
                 </div>
-                
+
                 <div className="p-8">
                   <h3 className="text-[1.8rem] font-bold text-zinc-900 mb-5">This Course Includes</h3>
                   <ul className="space-y-5">
@@ -368,10 +368,10 @@ export default function CourseDetailsPage() {
                     <li className="flex items-center gap-4">
                       <Icon icon="ph:infinity-fill" className="text-[1.4rem] text-zinc-700" />
                       <span className="text-[1.35rem] text-zinc-700">Lifetime access</span>
-                      </li>
+                    </li>
                   </ul>
                 </div>
-                
+
                 <div className="p-8 bg-zinc-50 border-t border-zinc-200">
                   <div className="flex items-start gap-4 mb-5">
                     <Icon icon="ph:users-three-fill" className="text-[1.8rem] text-zinc-800" />
@@ -380,13 +380,16 @@ export default function CourseDetailsPage() {
                       <p className="text-[1.2rem] text-zinc-600">Learning with AI Teacher</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4">
                     <Icon icon="ph:clock-countdown-fill" className="text-[1.8rem] text-zinc-800" />
                     <div>
                       <p className="text-[1.4rem] font-semibold text-zinc-800">Start learning today</p>
                       <p className="text-[1.2rem] text-zinc-600">At your own pace</p>
                     </div>
+                  </div>
+                  <div className="flex items-start gap-4 mt-8">
+                    <Button className="w-[100%] h-[30px] full-rounded text-xl">Mind map of the course</Button>
                   </div>
                 </div>
               </div>

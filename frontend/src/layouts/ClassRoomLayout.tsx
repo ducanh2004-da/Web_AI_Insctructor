@@ -25,14 +25,14 @@ export default function ClassRoomLayout() {
                 AI
               </div>
               <div>
-                <div className="text-2xl font-semibold">Khóa học ReactJS</div>
-                <div className="text-sm text-slate-500">Học tương tác cùng AI Tutor</div>
+                <div className="text-2xl font-semibold">ReactJS Course</div>
+                <div className="text-sm text-slate-500">Learning and Interacting with A.I Tutor</div>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-2xl text-slate-600 hidden sm:block">Xin chào, Học viên</div>
+            <div className="text-2xl text-slate-600 hidden sm:block">Hello, Learner</div>
             <div className="w-9 h-9 rounded-full bg-white border flex items-center justify-center text-sm shadow">GV</div>
           </div>
         </div>
