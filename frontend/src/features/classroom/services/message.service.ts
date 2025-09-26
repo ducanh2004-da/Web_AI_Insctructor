@@ -3,29 +3,37 @@ import { Message } from '../types'
 
 export const messageService = {
   createMessage: async (
-    content: string | null, 
     conversationId: string | null, 
+    message: string | null, 
+    sessionId: string | null,
+    fileBase64: string | null,
+    filename: string | null,
     courseId: string | null, 
     lessonId: string | null
   ): Promise<Message> => {
     const response = await apiConfig.post('', {
       query: `
-        mutation CreateMessage($data: CreateMessageInput!) {
-          createMessage(data: $data) {
-            id
-            content
-            senderType
-            conversationId
-            timestamp
-          }
+        mutation CreateMessage($data: CreateMessage2Input!) {
+        createMessage(data: $data) {
+          agent
+          content
+          conversationId
+          id
+          message
+          response
+          senderType
+          timestamp
+          type
         }
+      }
       `,
       variables: {
         data: {
-          content,
           conversationId,
-          courseId,
-          lessonId
+          message,
+          sessionId,
+          fileBase64,
+          filename
         }
       }
     })

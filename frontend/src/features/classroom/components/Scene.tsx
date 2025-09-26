@@ -301,9 +301,9 @@ const Scene = () => {
       <Leva hidden />
       <CameraManager />
       <Teacher
-        position={[-0.05, -2.3, -2.0]}
-        scale={1.9}
-        rotation-y={degToRad(205)}
+        position={[-0.05, -1.75, -2.0]}
+        scale={1.5}
+        rotation-y={degToRad(188)}
       />
       <Html
         transform

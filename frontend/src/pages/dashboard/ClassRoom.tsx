@@ -1,163 +1,4 @@
-// // import { useState, useEffect, Suspense, useCallback, lazy, useRef } from 'react'
-// import React, { Suspense, useEffect, useRef, useState, ChangeEvent, FormEvent, lazy } from 'react';
-// import { Canvas } from '@react-three/fiber'
-// import { useProgress, PerformanceMonitor, AdaptiveDpr, useGLTF } from '@react-three/drei'
-// // import { PerformanceMonitor, AdaptiveDpr, } from '@react-three/drei'
-// import { youtubeLink } from '@/mocks/youtubeLink';
-// import { Icon } from '@iconify/react'
-// // import { PerformanceMonitor, AdaptiveDpr} from '@react-three/drei'
-// // import { AdaptiveDpr} from '@react-three/drei'
-// // import { Icon } from '@iconify/react'
-// // import { cn } from '@/lib'
-// // import { useParams } from 'react-router-dom'
-
-// import { 
-//   MessageBox,
-//   ConversationBox,
-//   ClassroomLoading,
-//   useClassroomStore, 
-//   useTeacherSpeech, 
-//   checkAzureSpeechSDK
-// } from '@/features/classroom'
-// import { MessageBoxHandle, ConversationBoxHandle } from '@/features/classroom'
-// import { Tooltip } from '@/components/ui/tooltip'
-// import { Button } from '@/components/ui/button'
-
-// const Scene = lazy(() => import('@/features/classroom/components/Scene'))
-
-// useGLTF.preload('/models/classroom_default.glb')
-// useGLTF.preload('/models/teacher.glb')
-// useGLTF.preload('/models/teacher_animation.glb')
-
-// export default function ClassRoomPage() {
-// const { courseId } = useParams<{ courseId: string }>()
-//   const { active, progress } = useProgress()
-//   const initialLoad = useClassroomStore((state) => state.initialLoad)
-//   const setInitialLoad = useClassroomStore((state) => state.setInitialLoad)
-//   const isThinking = useClassroomStore((state) => state.isThinking)
-//   const stopAll = useClassroomStore((state) => state.stopAll)
-//   const isLessonStarted = useClassroomStore((state) => state.isLessonStarted)
-//   const isExplanationVisible = useClassroomStore((state) => state.isExplanationVisible)
-
-//   const {
-//     stop: stopAzure,
-//     error: azureError
-//   } = useTeacherSpeech()
-
-//   const [sdkError, setSdkError] = useState<string | null>(null)
-//   const [sdkLoading, setSdkLoading] = useState<boolean>(true)
-
-//   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false)
-//   const [loaderVisible, setLoaderVisible] = useState<boolean>(true)
-
-//   const [boxesVisibility, setBoxesVisibility] = useState<{
-//     message: boolean;
-//     conversation: boolean;
-//   }>({
-//     message: isLessonStarted,
-//     conversation: isLessonStarted
-//   })
-
-//   const messageBoxRef = useRef<MessageBoxHandle>(null)
-//   const conversationBoxRef = useRef<ConversationBoxHandle>(null)
-
-//   const handleFadeComplete = useCallback(() => {
-//     setLoaderVisible(false)
-//   }, [])
-
-//   useEffect(() => {
-//     if (progress === 100 && !active && !initialLoadComplete) {
-//       setInitialLoadComplete(true)
-
-//       setTimeout(() => {
-//         setInitialLoad(true)
-//       }, 500)
-//     }
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [progress, active, initialLoadComplete])
-
-//   useEffect(() => {
-//     const { isAvailable, error } = checkAzureSpeechSDK()
-//     setSdkLoading(false)
-
-//     if (!isAvailable && error) {
-//       console.warn('Azure Speech SDK check failed:', error)
-//       setSdkError(error)
-//     }
-//   }, [])
-
-//   useEffect(() => {
-//     if (azureError) {
-//       console.warn('Azure Speech Error:', azureError)
-//       setSdkError(azureError)
-//     } else {
-//       setSdkError(null)
-//     }
-//   }, [azureError])
-
-// useEffect(() => {
-//   if (isLessonStarted && !isExplanationVisible) {
-//     setBoxesVisibility({
-//       message: false,
-//       conversation: false
-//     })
-//   } 
-//   else if (isLessonStarted && isExplanationVisible) {
-//     messageBoxRef.current?.show()
-//     conversationBoxRef.current?.show()
-//     setBoxesVisibility({
-//       message: true,
-//       conversation: true
-//     })
-//   }
-// }, [isLessonStarted, isExplanationVisible])
-
-//   const handleGoBack = () => {
-//     stopAzure()
-//     stopAll()
-//     window.location.href = '/courses'
-//   }
-
-//   const handleMessageBoxVisibilityChange = (visible: boolean) => {
-//     setBoxesVisibility(prev => ({
-//       ...prev,
-//       message: visible
-//     }))
-//   }
-
-//   const handleConversationBoxVisibilityChange = (visible: boolean) => {
-//     setBoxesVisibility(prev => ({
-//       ...prev,
-//       conversation: visible
-//     }))
-//   }
-
-//   return (
-//     <>
-//       {loaderVisible && (
-//         <ClassroomLoading 
-//           progress={progress} 
-//           sdkError={sdkError}
-//           sdkLoading={sdkLoading}
-//           isLoaded={initialLoad}
-//           onFadeComplete={handleFadeComplete}
-//         />
-//       )}
-
-
-//   <MessageBox 
-//     ref={messageBoxRef}
-//     visible={boxesVisibility.message} 
-//     onVisibilityChange={handleMessageBoxVisibilityChange}
-//   />
-
-//   <ConversationBox
-//     ref={conversationBoxRef}
-//     visible={boxesVisibility.conversation}
-//     onVisibilityChange={handleConversationBoxVisibilityChange}
-//   />
-// </div>
-
+// ClassRoom.tsx
 import React, {
   Suspense,
   useEffect,
@@ -196,24 +37,20 @@ import { Button } from '@/components/ui/button';
 
 import { cn } from '@/lib' // giữ nếu bạn có helper này
 
+import { styled } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+
 // --- small stubs (replace with your real components if present) ---
 const Input = React.forwardRef<HTMLInputElement, any>((props, ref) => <input ref={ref} {...props} />);
-// Replace these with your real components
 const ConversationSkeleton = () => <div className="h-12 bg-slate-100 rounded" />;
-// const ConversationItem = ({ conversation, onClick }: any) => (
-//   <div className="p-2 cursor-pointer" onClick={() => onClick?.(conversation)}>
-//     {conversation?.name ?? conversation?.id}
-//   </div>
-// );
 // Stubs for update/delete states & handlers (replace with your real logic)
-const updateConversationMutation: any = { isLoading: false };
-const deleteConversationMutation: any = { isLoading: false };
-let selectedConversationId: any = null;
-let updatingConversationId: any = null;
-let deletingConversationId: any = null;
-const handleSelectConversation = (c?: any) => { };
-const handleUpdateConversation = async (c?: any) => { };
-const handleDeleteConversation = async (c?: any) => { };
+const updateConversationMutation: any = { isPending: false };
+const deleteConversationMutation: any = { isPending: false };
 // --- end stubs ---
 
 const Scene = lazy(() => import('@/features/classroom/components/Scene'));
@@ -222,6 +59,15 @@ const GRAPHQL_ENDPOINT = import.meta.env.VITE_API_BACKEND_URL || 'http://localho
 
 type Role = 'user' | 'assistant' | string;
 
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
 interface Message {
   id: number | string;
   role: Role;
@@ -229,27 +75,17 @@ interface Message {
   ts?: number;
 }
 
-// Add Conversation type according to your backend shape
 interface Conversation {
   id: string;
   name?: string;
   // other fields...
 }
 
-type ChunkEvent =
-  | { type: 'chunk'; response: string }
-  | { type: 'status'; agent?: string }
-  | { type: 'done' }
-  | { type: 'end' }
-  | { type: 'raw'; raw: string }
-  | any;
-
 export default function ClassRoomPage() {
   // Zustand selector usage
   const authUser = useAuthStore(state => state.user);
 
   const { active, progress } = useProgress();
-  const initialLoad = useClassroomStore((state) => state.initialLoad);
   const setInitialLoad = useClassroomStore((state) => state.setInitialLoad);
   const isThinking = useClassroomStore((state) => state.isThinking);
   const stopAll = useClassroomStore((state) => state.stopAll);
@@ -265,14 +101,22 @@ export default function ClassRoomPage() {
   const [sdkError, setSdkError] = useState<string | null>(null);
   const [sdkLoading, setSdkLoading] = useState<boolean>(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
-  const [loaderVisible, setLoaderVisible] = useState<boolean>(true);
 
   const [boxesVisibility, setBoxesVisibility] = useState<{ message: boolean; conversation: boolean }>(() => ({
     message: isLessonStarted,
     conversation: isLessonStarted
   }));
 
-  // --- useQuery: call service properly and type the result ---
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpenQuiz = () => {
+    setOpen(true);
+  };
+  const handleCloseQuiz = () => {
+    setOpen(false);
+  };
+
+  // --- queries / mutations ---
   const {
     data: conversations = [],
     isLoading: isLoadingData,
@@ -285,11 +129,9 @@ export default function ClassRoomPage() {
     staleTime: 1000 * 60 * 2
   });
 
-  // --- create conversation mutation: destructure isLoading + mutateAsync ---
   const createConversationMutation = useMutation<Conversation, Error, string>({
     mutationFn: async (name: string) => {
       if (!authUser?.id) throw new Error('User not authenticated');
-      // call your service, adjust signature if needed
       return await conversationService.createConversation(name, authUser.id);
     },
     onSuccess: (newConversation) => {
@@ -305,25 +147,62 @@ export default function ClassRoomPage() {
     }
   });
 
-  // extract mutateAsync from object for convenience
   const { mutateAsync: createConversationAsync } = createConversationMutation;
-  // derive a safe isCreatingConversation boolean
-  const isCreatingConversation = (createConversationMutation as any).isLoading ?? 'loading';
+  const isCreatingConversation = !!createConversationMutation.isPending;
+
+  // Selected conversation state (local for now)
+  let [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [updatingConversationId, setUpdatingConversationId] = useState<string | null>(null);
+  const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
+  selectedConversationId = "d5e2ef1e-7c3e-4ebf-8949-e6c52c4deef1";
+
+  const handleSelectConversation = useCallback((c?: any) => {
+    if (!c) return;
+    setSelectedConversationId(c.id);
+    // show conversation box if needed:
+    // conversationBoxRef.current?.show();
+  }, []);
+
+  const handleUpdateConversation = async (c?: any) => {
+    if (!c) return;
+    setUpdatingConversationId(c.id);
+    try {
+      // add update logic if available
+      queryClient.invalidateQueries({ queryKey: ['myConversations', authUser?.id] });
+      toast.success('Updated');
+    } catch (err) {
+      console.error(err);
+      toast.error('Update failed');
+    } finally {
+      setUpdatingConversationId(null);
+    }
+  };
+
+  const handleDeleteConversation = async (c?: any) => {
+    if (!c) return;
+    setDeletingConversationId(c.id);
+    try {
+      // add delete logic if available
+      queryClient.invalidateQueries({ queryKey: ['myConversations', authUser?.id] });
+      setSelectedConversationId(prev => (prev === c.id ? null : prev));
+      toast.success('Deleted');
+    } catch (err) {
+      console.error(err);
+      toast.error('Delete failed');
+    } finally {
+      setDeletingConversationId(null);
+    }
+  };
 
   const messageBoxRef = useRef<MessageBoxHandle>(null);
   const conversationBoxRef = useRef<ConversationBoxHandle>(null);
 
-  const handleFadeComplete = useCallback(() => {
-    setLoaderVisible(false);
-  }, []);
 
-  // create handler uses mutateAsync
   const handleCreateConversation = useCallback(async () => {
     const name = newConversationName?.trim();
     if (!name) return;
     try {
       await createConversationAsync(name);
-      // onSuccess handles UI updates
     } catch (err) {
       console.error('create conversation failed', err);
     }
@@ -390,250 +269,143 @@ export default function ClassRoomPage() {
     setBoxesVisibility((prev) => ({ ...prev, conversation: visible }));
   }, []);
 
-  // ---------------- Chat state (kept as original) ----------------
+  // ---------------- Chat state ----------------
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState<string>('');
-  const [sessionId, setSessionId] = useState<string>('');
-  const [file, setFile] = useState<File | null>(null);
+
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [statusText, setStatusText] = useState<string>('');
   const controllerRef = useRef<{ cancelled: boolean }>({ cancelled: false });
   const fetchAbortRef = useRef<AbortController | null>(null);
-  const playRef = useRef<boolean>(false);
   const chatWindowRef = useRef<HTMLDivElement | null>(null);
 
+  // ---------- NEW STREAMING QUEUE / TOKEN PROCESSOR ----------
   const streamingMessageIdRef = useRef<number | string | null>(null);
-  const bufferRef = useRef<string>('');
-  const flushTimerRef = useRef<number | null>(null);
+  const streamingQueueRef = useRef<string[]>([]);
+  const isProcessingQueueRef = useRef(false);
 
-  function fileToBase64(fileParam: File | null): Promise<string | null> {
-    return new Promise((resolve, reject) => {
-      if (!fileParam) return resolve(null);
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string | ArrayBuffer | null;
-        if (!dataUrl || typeof dataUrl !== 'string') return resolve(null);
-        const base64 = dataUrl.split(',')[1];
-        resolve(base64 ?? null);
-      };
-      reader.onerror = (err) => reject(err);
-      reader.readAsDataURL(fileParam);
-    });
-  }
+  // split text into tokens preserving trailing spaces: "word " tokens
+  const tokenize = (text: string) => {
+    if (!text) return [];
+    return text.match(/\S+\s*/g) || [text];
+  };
 
-  function parseSSEAggregated(aggStr: string): ChunkEvent[] {
-    if (!aggStr) return [];
-    const rawEvents = aggStr
-      .split(/\n\n+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const events: ChunkEvent[] = [];
-    for (const ev of rawEvents) {
-      const lines = ev
-        .split(/\n/)
-        .map((l) => l.replace(/^data:\s?/, '').trim())
-        .filter(Boolean);
-      const joined = lines.join('\n');
-      try {
-        const obj = JSON.parse(joined);
-        events.push(obj);
-      } catch {
-        events.push({ type: 'raw', raw: joined });
-      }
+  const appendTokenToStreamingMessage = useCallback((token: string) => {
+    if (!token) return;
+    if (!streamingMessageIdRef.current) {
+      const streamId = Date.now() + Math.random();
+      streamingMessageIdRef.current = streamId;
+      setMessages(prev => [...prev, { id: streamId, role: 'assistant', text: token, ts: Date.now() }]);
+      return;
     }
-    return events;
-  }
-
-  const flushBuffer = useCallback(() => {
-    if (!streamingMessageIdRef.current) return;
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === streamingMessageIdRef.current ? { ...m, text: bufferRef.current } : m
-      )
+    const id = streamingMessageIdRef.current;
+    setMessages(prev =>
+      prev.map(m => (m.id === id ? { ...m, text: `${m.text ?? ''}${token}` } : m))
     );
   }, []);
 
-  const clearFlushTimer = useCallback(() => {
-    if (flushTimerRef.current) {
-      window.clearInterval(flushTimerRef.current);
-      flushTimerRef.current = null;
-    }
-  }, []);
-
-  async function playChunksSequentially(
-    chunkEvents: ChunkEvent[],
-    { charDelay = 16, betweenChunksDelay = 80, flushInterval = 120 }: { charDelay?: number; betweenChunksDelay?: number; flushInterval?: number } = {}
-  ): Promise<void> {
-    controllerRef.current.cancelled = false;
+  const processStreamingQueue = useCallback(async (opts?: { baseDelay?: number }) => {
+    if (isProcessingQueueRef.current) return;
+    isProcessingQueueRef.current = true;
     setIsStreaming(true);
-    playRef.current = true;
-
-    const messageId = Date.now() + Math.random();
-    streamingMessageIdRef.current = messageId;
-    bufferRef.current = '';
-    setMessages((prev) => [...prev, { id: messageId, role: 'assistant', text: '', ts: Date.now() }]);
-
-    clearFlushTimer();
-    flushTimerRef.current = window.setInterval(() => {
-      flushBuffer();
-    }, flushInterval);
-
+    controllerRef.current.cancelled = false;
     try {
-      outer: for (const evt of chunkEvents) {
-        if (controllerRef.current.cancelled) break;
-        if (evt && evt.type === 'chunk' && typeof evt.response === 'string') {
-          const text = evt.response;
-          for (let i = 0; i < text.length; i++) {
-            if (controllerRef.current.cancelled) break outer;
-            bufferRef.current += text[i];
-            // eslint-disable-next-line no-await-in-loop
-            await new Promise((res) => setTimeout(res, charDelay));
-          }
-          // eslint-disable-next-line no-await-in-loop
-          await new Promise((res) => setTimeout(res, betweenChunksDelay));
-        } else if (evt && evt.type === 'status') {
-          setStatusText(`Agent: ${evt.agent || 'unknown'}`);
-        } else if (evt && (evt.type === 'done' || evt.type === 'end')) {
-          break;
-        } else if (evt && evt.type === 'raw') {
-          bufferRef.current += `\n${evt.raw}`;
-        }
+      while (streamingQueueRef.current.length > 0 && !controllerRef.current.cancelled) {
+        const token = streamingQueueRef.current.shift();
+        if (!token) continue;
+
+        appendTokenToStreamingMessage(token);
+
+        const base = opts?.baseDelay ?? 60; // base ms per token
+        const computed = Math.min(220, base + Math.max(0, token.trim().length) * 8);
+
+        // wait but react to cancellation
+        await new Promise<void>((resolve) => {
+          const t = window.setTimeout(() => {
+            resolve();
+          }, computed);
+          const iv = window.setInterval(() => {
+            if (controllerRef.current.cancelled) {
+              window.clearTimeout(t);
+              window.clearInterval(iv);
+              resolve();
+            }
+          }, 30);
+        });
       }
     } finally {
-      flushBuffer();
-      clearFlushTimer();
+      isProcessingQueueRef.current = false;
       setIsStreaming(false);
-      playRef.current = false;
       streamingMessageIdRef.current = null;
-      bufferRef.current = '';
-      setStatusText('');
+      // clear status text after small delay
+      setTimeout(() => setStatusText(''), 200);
     }
-  }
+  }, [appendTokenToStreamingMessage]);
 
-  const handleSend = useCallback(
-    async (e?: FormEvent<HTMLFormElement>): Promise<void> => {
-      e?.preventDefault();
-      if ((!input || !input.trim()) && !file) return;
-      controllerRef.current.cancelled = false;
-      setStatusText('Sending...');
-      setIsStreaming(false);
+  const enqueueText = useCallback((text: string) => {
+    if (!text) return;
+    const toks = tokenize(text);
+    if (toks.length === 0) return;
+    streamingQueueRef.current.push(...toks);
+    void processStreamingQueue({ baseDelay: 60 });
+  }, [processStreamingQueue]);
 
-      if (fetchAbortRef.current) {
-        try {
-          fetchAbortRef.current.abort();
-        } catch { }
+
+  // ---------- END NEW STREAMING LOGIC ----------
+
+  // previously we used window events; now we still listen and put text into queue
+  useEffect(() => {
+    const onUser = (e: any) => {
+      const { id, text, ts } = e.detail ?? {};
+      setMessages(prev => [...prev, { id: id ?? Date.now() + Math.random(), role: 'user', text: text ?? '', ts: ts ?? Date.now() }]);
+    };
+
+    const onChunk = (e: any) => {
+      const { text } = e.detail ?? {};
+      if (text == null) return;
+      enqueueText(text);
+    };
+
+    const onFinal = (e: any) => {
+      const { text } = e.detail ?? {};
+      if (text) {
+        enqueueText(text);
       }
-      const abortController = new AbortController();
-      fetchAbortRef.current = abortController;
+    };
 
-      const fileBase64 = await fileToBase64(file);
-      const filename = file ? file.name : null;
+    const onStatus = (e: any) => {
+      const detail = (e as CustomEvent<{ agent?: string }>).detail || {};
+      setStatusText(`Agent: ${detail.agent ?? 'unknown'}`);
+    };
 
-      const userMessageId = Date.now() + Math.random();
-      setMessages((prev) => [...prev, { id: userMessageId, role: 'user', text: input || '', ts: Date.now() }]);
-      setInput('');
+    window.addEventListener('ai-chat:user_message', onUser as EventListener);
+    window.addEventListener('ai-chat:assistant_chunk', onChunk as EventListener);
+    window.addEventListener('ai-chat:assistant_message', onFinal as EventListener);
+    window.addEventListener('ai-chat:assistant_done', onFinal as EventListener);
+    window.addEventListener('ai-chat:assistant_status', onStatus as EventListener);
 
-      const query = `mutation CreateMessage($data: CreateMessage2Input!) {
-        createMessage(data: $data) {
-          agent
-          content
-          conversationId
-          id
-          message
-          response
-          senderType
-          timestamp
-          type
-        }
-      }`;
+    return () => {
+      window.removeEventListener('ai-chat:user_message', onUser as EventListener);
+      window.removeEventListener('ai-chat:assistant_chunk', onChunk as EventListener);
+      window.removeEventListener('ai-chat:assistant_message', onFinal as EventListener);
+      window.removeEventListener('ai-chat:assistant_done', onFinal as EventListener);
+      window.removeEventListener('ai-chat:assistant_status', onStatus as EventListener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      const variables = {
-        data: {
-          conversationId: 'd5e2ef1e-7c3e-4ebf-8949-e6c52c4deef1',
-          message: input || null,
-          sessionId: sessionId || null,
-          fileBase64: fileBase64 || null,
-          filename: filename || null
-        }
-      };
 
-      try {
-        const res = await fetch(GRAPHQL_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, variables }),
-          signal: abortController.signal
-        });
-
-        if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          throw new Error(`Network response not ok: ${res.status} ${text}`);
-        }
-        const json = (await res.json()) as any;
-        if (json.errors) {
-          console.error('GraphQL errors', json.errors);
-          setStatusText('Server error — xem console');
-          toast.error('Lỗi server khi gửi tin nhắn.');
-          return;
-        }
-
-        const payload = json.data?.createMessage;
-        if (!payload) {
-          setStatusText('No payload returned');
-          toast.error('Server trả về dữ liệu không hợp lệ.');
-          return;
-        }
-
-        if (payload.sessionId) setSessionId(payload.sessionId);
-
-        const agg: string = payload.response || '';
-        const events = parseSSEAggregated(agg);
-        const chunkEvents = events.filter(
-          (ev) => ev && (ev.type === 'chunk' || ev.type === 'status' || ev.type === 'done' || ev.type === 'end' || ev.type === 'raw')
-        );
-        // Nếu không có chunk -> server trả full MD, append message sử dụng MD nguyên bản
-        if (!chunkEvents.length) {
-          setMessages((prev) => [
-            ...prev,
-            { id: Date.now() + Math.random(), role: 'assistant', text: agg, ts: Date.now() }
-          ]);
-        } else {
-          await playChunksSequentially(chunkEvents as ChunkEvent[], { charDelay: 12, betweenChunksDelay: 60, flushInterval: 80 });
-        }
-
-        await playChunksSequentially(chunkEvents as ChunkEvent[], { charDelay: 12, betweenChunksDelay: 60, flushInterval: 80 });
-        setStatusText('Hoàn tất');
-      } catch (err: any) {
-        if (err?.name === 'AbortError') {
-          setStatusText('Đã huỷ');
-        } else {
-          console.error(err);
-          setStatusText('Network / unexpected error');
-          toast.error(err?.message || 'Lỗi mạng hoặc server');
-        }
-      } finally {
-        fetchAbortRef.current = null;
-      }
-    },
-    [input, file, sessionId]
-  );
 
   const handleStop = useCallback(() => {
     controllerRef.current.cancelled = true;
     setIsStreaming(false);
     setStatusText('Đã dừng');
+    // clear pending queue
+    streamingQueueRef.current = [];
     if (fetchAbortRef.current) {
       try {
         fetchAbortRef.current.abort();
       } catch { }
     }
-    clearFlushTimer();
-  }, [clearFlushTimer]);
-
-  const handleClear = useCallback(() => {
-    setMessages([]);
-    setStatusText('');
-    setFile(null);
   }, []);
 
   useEffect(() => {
@@ -646,23 +418,12 @@ export default function ClassRoomPage() {
     }
   }, [messages.length, isStreaming]);
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void handleSend();
-    }
-  }
 
   function formatTime(ts?: number) {
     if (!ts) return '';
     const d = new Date(ts);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-
-  const quickPrompts = useMemo(
-    () => ['Giải thích khái niệm này ngắn gọn', 'Cho ví dụ thực tế', 'Bài tập nhỏ liên quan', 'Tóm tắt nội dung', 'Giảng cho tôi bài học này ngắn gọn, dễ hiểu nhất'],
-    []
-  );
 
   return (
     <div className="bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-8 text-base">
@@ -672,10 +433,6 @@ export default function ClassRoomPage() {
           <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
             {/* Header */}
             <div className="flex items-center justify-between px-8 py-2 border-b">
-
-              {/* <div
-                style={{ opacity: initialLoad ? 1 : 0, transition: 'opacity 0.5s' }}
-              > */}
               <div className="flex items-center gap-5">
                 <Tooltip
                   content="Back to Courses"
@@ -696,7 +453,49 @@ export default function ClassRoomPage() {
               </div>
 
               <div className="flex items-center gap-4 w-[20%]">
-                <Button className="w-[60%] text-sm bg-black/50 hover:bg-black/20">Take the quiz</Button>
+                <Button onClick={handleClickOpenQuiz} className="w-[60%] text-sm bg-black/50 hover:bg-black/20">Take the quiz</Button>
+
+                <BootstrapDialog
+                  onClose={handleCloseQuiz}
+                  aria-labelledby="customized-dialog-title"
+                  open={open}
+                >
+                  <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+                    Quiz
+                  </DialogTitle>
+                  <IconButton
+                    aria-label="close"
+                    onClick={handleCloseQuiz}
+                    sx={(theme) => ({
+                      position: 'absolute',
+                      right: 8,
+                      top: 8,
+                      color: theme.palette.grey[500],
+                    })}
+                  >
+                    Close
+                  </IconButton>
+                  <DialogContent dividers>
+                    <Typography gutterBottom>
+                      <div className="w-150 h-50 px-2 flex flex-col justify-center items-center">
+                        <h3 className="title-question text-3xl">Javascript là gì</h3>
+                        <ul className='mt-3'>
+                          <li className='text-xl'>A. I don't know hichic</li>
+                          <li className='text-xl'>B. Why I have to answer</li>
+                          <li className='text-xl'>C. Nahhh give me candy</li>
+                          <li className='text-xl'>D. Other option</li>
+                        </ul>
+                      </div>
+                    </Typography>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button autoFocus onClick={handleCloseQuiz}>
+                      Save changes
+                    </Button>
+                  </DialogActions>
+                </BootstrapDialog>
+
+
                 <div className="text-sm text-slate-600" aria-live="polite">
                   {isStreaming ? 'Answering...' : statusText || 'Ready'}
                 </div>
@@ -745,12 +544,10 @@ export default function ClassRoomPage() {
                             remarkPlugins={[remarkGfm]}
                             rehypePlugins={[rehypeSanitize]}
                             components={{
-                              // giữ nguyên pre/ code appearance, và giữ whitespace pre-wrap cho đoạn văn
                               p: ({ node, ...props }) => <p {...props} className="m-0 whitespace-pre-wrap" />,
                               li: ({ node, ...props }) => <li {...props} />,
                               strong: ({ node, ...props }) => <strong {...props} />,
                               em: ({ node, ...props }) => <em {...props} />
-                              // bạn có thể override các phần tử khác nếu muốn custom styles
                             }}
                           />
                         )}
@@ -787,50 +584,16 @@ export default function ClassRoomPage() {
             </div>
 
             {/* Input area */}
-            <form onSubmit={handleSend} className="p-6 border-t bg-white flex flex-col gap-4">
-              <div className="flex items-start gap-4">
-                <textarea
-                  aria-label="Input question"
-                  placeholder="Typing... (Shift+Enter for spacing, Enter for sending)"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  rows={3}
-                  className="w-[90%] h-[50px] resize-none border rounded-2xl p-2 focus:outline-none focus:ring-4 focus:ring-indigo-200 text-lg"
-                />
-
-                <button
-                  type="submit"
-                  className="bg-indigo-600 text-white mt-5 px-5 py-3 rounded-xl shadow-lg hover:scale-[1.02] transition-transform text-sm disabled:opacity-50"
-                  disabled={isStreaming}
-                  aria-disabled={isStreaming}
-                >
-                  Send
-                </button>
-
-                <button type="button" onClick={handleStop} className="bg-red-500 mt-5 text-white px-5 py-3 rounded-xl text-sm" aria-label="Dừng trả lời">
-                  Stop
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-500">Hint:</span>
-                  <div className="flex gap-2">
-                    {quickPrompts.map((q) => (
-                      <button
-                        key={q}
-                        type="button"
-                        onClick={() => setInput(q)}
-                        className="text-sm bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full border hover:bg-indigo-100"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </form>
+            <div className="mt-50">
+              <MessageBox
+                ref={messageBoxRef}
+                visible={boxesVisibility.message}
+                onVisibilityChange={handleMessageBoxVisibilityChange}
+                // pass selected conversation id to MessageBox (if MessageBox supports it)
+                selectedConversationId={selectedConversationId}
+              />
+              <Button onClick={handleStop}>Stop</Button>
+            </div>
           </div>
         </div>
 
@@ -853,6 +616,7 @@ export default function ClassRoomPage() {
                 </div>
               </div>
 
+              {/* CONVERSATION */}
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-semibold">My Conversations</div>
@@ -943,7 +707,7 @@ export default function ClassRoomPage() {
                       <Button
                         onClick={() => window.location.reload()}
                         variant="outline"
-                        className="mt-4 bg-black/10 hover:bg-blac/20 text-white hover:text-white rounded-full drop-shadow-lg"
+                        className="mt-4 bg-black/10 hover:bg-black/20 text-white hover:text-white rounded-full drop-shadow-lg"
                       >
                         Try again
                       </Button>
@@ -961,7 +725,7 @@ export default function ClassRoomPage() {
                         Create new
                       </Button>
                     </div>
-                  ) : updateConversationMutation.isLoading || deleteConversationMutation.isLoading ? (
+                  ) : updateConversationMutation.isPending || deleteConversationMutation.isPending ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex flex-col items-center gap-2">
                         <div className="size-14 drop-shadow-lg">
@@ -970,7 +734,7 @@ export default function ClassRoomPage() {
                           </svg>
                         </div>
                         <p className="text-white text-[1.25rem] font-medium drop-shadow-lg">
-                          {updateConversationMutation.isLoading ? 'Updating...' : 'Deleting...'}
+                          {updateConversationMutation.isPending ? 'Updating...' : 'Deleting...'}
                         </p>
                       </div>
                     </div>
@@ -1002,6 +766,7 @@ export default function ClassRoomPage() {
               )}
             </div>
 
+            {/* REFERENCES */}
             <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-5 shadow border">
               <h3 className="text-3xl font-bold text-primary mb-2">References</h3>
               <ul className="flex flex-col gap-4 w-full">
@@ -1016,6 +781,7 @@ export default function ClassRoomPage() {
               </ul>
             </div>
 
+            {/* SCENE 3D */}
             <div className="size-full" style={{ backfaceVisibility: 'hidden', width: '100%', height: '300px' }}>
               <Canvas
                 camera={{ position: [0, 1.2, 3], fov: 50 }}
@@ -1033,13 +799,10 @@ export default function ClassRoomPage() {
                 </PerformanceMonitor>
               </Canvas>
             </div>
-
-            {/* <MessageBox ref={messageBoxRef} visible={boxesVisibility.message} onVisibilityChange={handleMessageBoxVisibilityChange} />
-            <ConversationBox ref={conversationBoxRef} visible={boxesVisibility.conversation} onVisibilityChange={handleConversationBoxVisibilityChange} /> */}
+            <ConversationBox ref={conversationBoxRef} visible={boxesVisibility.conversation} onVisibilityChange={handleConversationBoxVisibilityChange} />
           </div>
         </aside>
       </div>
     </div>
   );
 }
-

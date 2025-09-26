@@ -9,13 +9,42 @@ import { useAuthStore } from '@/stores'
 
 import { Button } from '@/components/ui/button'
 import { Loading } from '@/components'
+import * as React from 'react';
+
+import { styled } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import MindmapBox from '@/features/classroom/components/MindmapBox'
 // import { Badge } from '@/components/ui/badge'
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
 
 export default function CourseDetailsPage() {
   const { courseId } = useParams<{ courseId: string }>()
   const navigate = useNavigate()
   const { userDetails, user } = useAuthStore()
   const queryClient = useQueryClient()
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const queryResults = useQueries({
     queries: [
@@ -389,8 +418,41 @@ export default function CourseDetailsPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4 mt-8">
-                    <Button className="w-[100%] h-[30px] full-rounded text-xl">Mind map of the course</Button>
+                    <Button className="w-[100%] h-[30px] full-rounded text-xl" onClick={handleClickOpen}>Mind map of the course</Button>
                   </div>
+
+                  <BootstrapDialog
+                    onClose={handleClose}
+                    aria-labelledby="customized-dialog-title"
+                    open={open}
+                  >
+                    <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+                      Course Summary
+                    </DialogTitle>
+                    <IconButton
+                      aria-label="close"
+                      onClick={handleClose}
+                      sx={(theme) => ({
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: theme.palette.grey[500],
+                      })}
+                    >
+                      Close
+                    </IconButton>
+                    <DialogContent dividers>
+                      <Typography gutterBottom>
+                        <MindmapBox />
+                      </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button autoFocus onClick={handleClose}>
+                        Save changes
+                      </Button>
+                    </DialogActions>
+                  </BootstrapDialog>
+
                 </div>
               </div>
             </div>

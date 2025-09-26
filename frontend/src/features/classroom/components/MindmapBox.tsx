@@ -14,23 +14,23 @@ const exampleMindmap: MindmapNode = {
   children: [
     {
       id: '1',
-      title: 'Main Idea 1',
+      title: 'Lesson 1',
       children: [
-        { id: '1-1', title: 'Detail 1.1' },
-        { id: '1-2', title: 'Detail 1.2' },
+        { id: '1-1', title: 'Javascript căn bản' },
+        { id: '1-2', title: 'ES6' },
       ],
     },
     {
       id: '2',
-      title: 'Main Idea 2',
+      title: 'Lesson 2',
       children: [
-        { id: '2-1', title: 'Detail 2.1' },
-        { id: '2-2', title: 'Detail 2.2' },
+        { id: '2-1', title: 'ReactJS căn bản' },
+        { id: '2-2', title: 'Typescript căn bản' },
       ],
     },
     {
       id: '3',
-      title: 'Main Idea 3',
+      title: 'Lesson 3',
     },
   ],
 };

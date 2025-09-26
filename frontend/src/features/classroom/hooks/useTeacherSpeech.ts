@@ -35,37 +35,64 @@ export const useTeacherSpeech = ({
   const [state, setState] = useState<GeneralMode>(GENERAL_MODE.IDLE)
   const [error, setError] = useState<string | null>(null)
   const [isReady, setIsReady] = useState<boolean>(false)
-  
+
   const setCurrentMessage = useClassroomStore((state) => state.setCurrentMessage)
-  
+
   const synthesisRef = useRef<any>(null)
   const isSynthesizerClosedRef = useRef<boolean>(false)
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null)
   const audioUrlRef = useRef<string | null>(null)
-  
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioUnlockedRef = useRef<boolean>(false);
+
   const isPlayingRef = useRef<boolean>(false)
   const synthesisInProgressRef = useRef<boolean>(false)
-  
+
+  // unlock audioContext on first user interaction (helps autoplay)
+  useEffect(() => {
+    try {
+      const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (Ctx) {
+        audioContextRef.current = new Ctx();
+        const unlock = async () => {
+          try {
+            await audioContextRef.current?.resume();
+          } catch (e) {
+            // ignore
+          }
+          audioUnlockedRef.current = true;
+        };
+        // listen once — next user click will unlock
+        document.addEventListener('click', unlock, { once: true, passive: true });
+        return () => {
+          document.removeEventListener('click', unlock as EventListener);
+        };
+      }
+    } catch (e) {
+      // ignore if AudioContext not supported
+    }
+  }, []);
+
   const createSynthesizer = useCallback(() => {
     try {
       const { isAvailable, sdk } = checkAzureSpeechSDK()
-      
+
       if (!isAvailable || !sdk) {
         throw new Error('Azure Speech SDK is not available')
       }
-      
+
       const speechConfig = createAzureSpeechConfig(
-        subscriptionKey || undefined, 
+        subscriptionKey || undefined,
         serviceRegion || undefined
       )
-      
+
       if (!speechConfig) {
         throw new Error('Failed to create speech configuration')
       }
-      
+
       speechConfig.speechSynthesisLanguage = language
       speechConfig.speechSynthesisVoiceName = voice
-      
+
       if (pitch !== 0) {
         try {
           (speechConfig as any).speechSynthesisPitchHz = pitch
@@ -73,7 +100,7 @@ export const useTeacherSpeech = ({
           console.warn('Failed to set pitch, this property might not be supported in this SDK version', e)
         }
       }
-      
+
       if (rate !== 1) {
         try {
           (speechConfig as any).speechSynthesisRate = rate
@@ -81,12 +108,12 @@ export const useTeacherSpeech = ({
           console.warn('Failed to set rate, this property might not be supported in this SDK version', e)
         }
       }
-      
+
       const audioConfig = SpeechSDK.AudioConfig.fromStreamOutput(SpeechSDK.AudioOutputStream.createPullStream())
       const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, audioConfig)
-      
+
       isSynthesizerClosedRef.current = false
-      
+
       return synthesizer
     } catch (err) {
       console.error('Error creating synthesizer:', err)
@@ -96,10 +123,10 @@ export const useTeacherSpeech = ({
 
   const cleanup = useCallback(() => {
     // console.log('Complete cleanup of Azure resources')
-    
+
     synthesisInProgressRef.current = false
     isPlayingRef.current = false
-    
+
     if (audioPlayerRef.current) {
       // console.log('Force stopping audio player')
       const player = audioPlayerRef.current
@@ -110,7 +137,7 @@ export const useTeacherSpeech = ({
       player.load()
       audioPlayerRef.current = null
     }
-    
+
     if (audioUrlRef.current) {
       try {
         // console.log('Revoking blob URL')
@@ -120,7 +147,7 @@ export const useTeacherSpeech = ({
         console.error('Error revoking URL:', e)
       }
     }
-    
+
     if (synthesisRef.current && !isSynthesizerClosedRef.current) {
       try {
         // console.log('Completely closing synthesizer')
@@ -131,18 +158,18 @@ export const useTeacherSpeech = ({
         console.error('Error closing synthesizer:', e)
       }
     }
-    
+
     setCurrentMessage(null)
     setState(GENERAL_MODE.IDLE)
   }, [setCurrentMessage])
-  
+
   useEffect(() => {
     let mounted = true
-    
+
     const initializeSdk = async () => {
       try {
         const { isAvailable, error: sdkError } = checkAzureSpeechSDK()
-        
+
         if (!isAvailable) {
           if (mounted) {
             setError(sdkError || 'Azure Speech SDK is not available')
@@ -150,15 +177,15 @@ export const useTeacherSpeech = ({
           }
           return
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, 500))
-        
+
         const synthesizer = createSynthesizer()
-        
+
         if (!synthesizer) {
           throw new Error('Failed to create speech synthesizer')
         }
-        
+
         if (mounted) {
           synthesisRef.current = synthesizer
           setIsReady(true)
@@ -174,15 +201,15 @@ export const useTeacherSpeech = ({
         }
       }
     }
-    
+
     initializeSdk()
-    
+
     return () => {
       mounted = false
       cleanup()
     }
   }, [createSynthesizer, cleanup])
-  
+
   const ensureSynthesizerReady = useCallback(() => {
     // console.log('Checking synthesizer ready state:', { 
     //   isClosed: isSynthesizerClosedRef.current, 
@@ -201,7 +228,7 @@ export const useTeacherSpeech = ({
               console.warn('Error closing old synthesizer:', e)
             }
           }
-          
+
           synthesisRef.current = newSynthesizer
           isSynthesizerClosedRef.current = false
           // console.log('Successfully created new synthesizer')
@@ -215,25 +242,25 @@ export const useTeacherSpeech = ({
         return false
       }
     }
-    
+
     // console.log('Using existing synthesizer')
     return true
   }, [createSynthesizer])
-  
+
   const stopAudioAndSynthesizer = useCallback(() => {
     // console.log('Stopping audio and synthesizer')
-    
+
     synthesisInProgressRef.current = false
     isPlayingRef.current = false
-    
+
     if (audioPlayerRef.current) {
       const player = audioPlayerRef.current
       // console.log('Force stopping audio playback')
-      
+
       player.onended = null
       player.oncanplaythrough = null
       player.onerror = null
-      
+
       try {
         player.pause()
         player.currentTime = 0
@@ -244,7 +271,7 @@ export const useTeacherSpeech = ({
       }
       audioPlayerRef.current = null
     }
-    
+
     if (synthesisRef.current) {
       try {
         // console.log('Completely closing synthesizer')
@@ -256,15 +283,15 @@ export const useTeacherSpeech = ({
         synthesisRef.current = null
       }
     }
-    
+
     setCurrentMessage(null)
   }, [setCurrentMessage])
-  
+
   const speakWithVisemes = useCallback(async (text: string) => {
     if (!isReady) {
       // console.log('SDK not ready, waiting a bit...')
       await new Promise(resolve => setTimeout(resolve, 1200))
-      
+
       if (!isReady) {
         const errorMessage = 'Azure Speech SDK is not ready after waiting'
         console.error(errorMessage)
@@ -274,16 +301,16 @@ export const useTeacherSpeech = ({
         }
       }
     }
-    
+
     if (synthesisInProgressRef.current || isPlayingRef.current) {
       // console.log('Speech synthesis already in progress, stopping first')
       stopAudioAndSynthesizer()
-      
+
       await new Promise(resolve => setTimeout(resolve, 800))
     }
-    
+
     synthesisInProgressRef.current = true
-    
+
     // console.log('Always creating new synthesizer before each speech')
     if (!ensureSynthesizerReady()) {
       const errorMessage = 'Could not create speech synthesizer'
@@ -294,10 +321,10 @@ export const useTeacherSpeech = ({
         error: errorMessage
       }
     }
-    
+
     setState(GENERAL_MODE.THINKING)
     setError(null)
-    
+
     const synthesizer = synthesisRef.current
     if (!synthesizer) {
       synthesisInProgressRef.current = false
@@ -308,15 +335,15 @@ export const useTeacherSpeech = ({
         error: errorMessage
       }
     }
-    
+
     const visemes: Viseme[] = []
-    
+
     try {
-      synthesizer.visemeReceived = function(_s: any, e: any) {
+      synthesizer.visemeReceived = function (_s: any, e: any) {
         // console.log(`(Viseme), Audio offset: ${e.audioOffset / 10000}ms. Viseme ID: ${e.visemeId}`)
         visemes.push([e.audioOffset / 10000, e.visemeId])
       }
-      
+
       const ssml = `
         <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="${language}">
           <voice name="${voice}">
@@ -324,36 +351,42 @@ export const useTeacherSpeech = ({
           </voice>
         </speak>
       `
-      
+
       // console.log('Starting speech synthesis with visemes...')
-      
+
       return new Promise((resolve) => {
         try {
           synthesizer.speakSsmlAsync(
             ssml,
             (result: any) => {
               // console.log('Speech synthesis completed successfully', result)
-              
+
               const audioData = result.audioData
               const blob = new Blob([audioData], { type: 'audio/wav' })
-              
+
               if (audioUrlRef.current) {
                 URL.revokeObjectURL(audioUrlRef.current)
               }
-              
+
               const audioUrl = URL.createObjectURL(blob)
               audioUrlRef.current = audioUrl
-              
+
               const audioPlayer = new Audio()
-              
-              audioPlayer.oncanplaythrough = () => {
+
+              audioPlayer.oncanplaythrough = async () => {
                 // console.log('Audio can play through')
-                
+
+                try {
+                  await audioContextRef.current?.resume();
+                } catch (e) {
+                  // ignore
+                }
+
                 setState(GENERAL_MODE.SPEAKING)
                 isPlayingRef.current = true
-                
+
                 const visemeStartTime = Date.now()
-                
+
                 const newMessage: SpeechMessage = {
                   id: Date.now().toString(),
                   text,
@@ -361,9 +394,9 @@ export const useTeacherSpeech = ({
                   visemes,
                   visemeStartTime
                 }
-                
+
                 setCurrentMessage(newMessage)
-                
+
                 audioPlayer.play().catch(error => {
                   console.error('Error playing audio:', error)
                   setState(GENERAL_MODE.ERROR)
@@ -372,7 +405,7 @@ export const useTeacherSpeech = ({
                   isPlayingRef.current = false
                 })
               }
-              
+
               audioPlayer.onended = () => {
                 // console.log('Audio playback ended naturally')
                 setState(GENERAL_MODE.IDLE)
@@ -380,7 +413,7 @@ export const useTeacherSpeech = ({
                 synthesisInProgressRef.current = false
                 isPlayingRef.current = false
               }
-              
+
               audioPlayer.onerror = (e) => {
                 console.error('Audio playback error:', e)
                 setState(GENERAL_MODE.ERROR)
@@ -388,12 +421,12 @@ export const useTeacherSpeech = ({
                 synthesisInProgressRef.current = false
                 isPlayingRef.current = false
               }
-              
+
               audioPlayer.src = audioUrl
               audioPlayer.load()
-              
+
               audioPlayerRef.current = audioPlayer
-              
+
               resolve({
                 success: true
               })
@@ -404,11 +437,11 @@ export const useTeacherSpeech = ({
               setError(`Speech synthesis failed: ${error}`)
               synthesisInProgressRef.current = false
               isPlayingRef.current = false
-              
+
               if (error && error.toString().includes('disposed')) {
                 isSynthesizerClosedRef.current = true
               }
-              
+
               resolve({
                 success: false,
                 error: `Speech synthesis failed: ${error}`
@@ -418,18 +451,18 @@ export const useTeacherSpeech = ({
         } catch (err) {
           console.error('Exception during speech synthesis:', err)
           setState(GENERAL_MODE.ERROR)
-          const errorMessage = err instanceof Error ? 
-            `Azure speech error: ${err.message}` : 
+          const errorMessage = err instanceof Error ?
+            `Azure speech error: ${err.message}` :
             'Failed to generate speech. Please try again.'
           setError(errorMessage)
-          
+
           if (err instanceof Error && err.message.includes('disposed')) {
             isSynthesizerClosedRef.current = true
           }
-          
+
           synthesisInProgressRef.current = false
           isPlayingRef.current = false
-          
+
           resolve({
             success: false,
             error: errorMessage
@@ -439,34 +472,34 @@ export const useTeacherSpeech = ({
     } catch (err) {
       console.error('Error in speak function:', err)
       setState(GENERAL_MODE.ERROR)
-      const errorMessage = err instanceof Error ? 
-        `Azure speech error: ${err.message}` : 
+      const errorMessage = err instanceof Error ?
+        `Azure speech error: ${err.message}` :
         'Failed to generate speech. Please try again.'
       setError(errorMessage)
-      
+
       if (err instanceof Error && err.message.includes('disposed')) {
         isSynthesizerClosedRef.current = true
       }
-      
+
       synthesisInProgressRef.current = false
       isPlayingRef.current = false
-      
+
       return {
         success: false,
         error: errorMessage
       }
     }
   }, [isReady, synthesisRef, language, voice, ensureSynthesizerReady, stopAudioAndSynthesizer, setCurrentMessage])
-  
+
   const stop = useCallback(() => {
     // console.log('Force stopping all Azure speech')
-    
+
     stopAudioAndSynthesizer()
-    
+
     setCurrentMessage(null)
     setState(GENERAL_MODE.IDLE)
   }, [stopAudioAndSynthesizer, setCurrentMessage])
-  
+
   return {
     speak: speakWithVisemes,
     stop,
